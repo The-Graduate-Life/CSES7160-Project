@@ -60,6 +60,7 @@ CSES7160-Project/
     │   ├── 04_CSES7160_GWAS_Comparison.R      # FarmCPU vs MLM comparison
     │   ├── 05_GWAS_Confirmation.R             # Manhattan plots & validation
     │   ├── 06_LD_Analysis.R                   # LD heatmaps & decay
+    │   ├── 07_prediction_diagnostics.R        # Extended Accuracy Metrics
     │   └── CSES7160_Fritzner.qmd              # Quarto HTML report
     └── results/
         ├── plots/               # 16 PDF visualizations (numbered 00–15)
@@ -95,6 +96,7 @@ Script 01 (Required) → generates .rds files and core outputs
 | 04 | MLM GWAS; side-by-side comparison with FarmCPU | ~10–20 min |
 | 05 | Top-hit validation; Chr 16 zoomed Manhattan | ~2–5 min |
 | 06 | LD r² heatmap and decay around Chr 16 top SNP | ~2–5 min |
+| 07 | Extended prediction accuracy diagnostics for the additive GBLUP | ~1-2 min |
 
 
 ## Methods Summary
