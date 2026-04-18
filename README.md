@@ -3,7 +3,7 @@
 **Course:** CSES 7160 — Genetic Data Analysis  
 **Author:** Fritzner Pierre  
 **Institution:** Auburn University  
-**Year:** 2026
+**Semester:** Spring 2026
 
 ---
 
