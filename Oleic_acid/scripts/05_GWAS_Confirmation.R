@@ -139,8 +139,9 @@ cat("STEP 5 | Recompute Cumulative Positions\n")
 cat("----------------------------------------------------------------------\n")
 
 # Drop any pre-existing cumulative columns to avoid join conflicts
-gwas_df <- gwas_df |>
-  select(-any_of(c("cum_add", "pos_cum", "max_pos")))
+# Drop pre-existing cumulative columns (base R — compatible with all dplyr versions)
+drop_cols <- c("cum_add", "pos_cum", "max_pos")
+gwas_df   <- gwas_df[, !names(gwas_df) %in% drop_cols, drop = FALSE]
 
 # Recompute from scratch
 chr_meta <- gwas_df |>

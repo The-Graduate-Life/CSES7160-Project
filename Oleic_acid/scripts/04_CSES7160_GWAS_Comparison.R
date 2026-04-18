@@ -302,11 +302,13 @@ CV <- scores[, c("Taxa", paste0("PC", seq_len(N_PCS)))]
 
 # Genomic relationship matrix (VanRaden 2008)
 cat("Building GRM...\n")
-K_mat <- tryCatch(
-  A.mat(geno_rrblup, min.MAF = NULL, return.imputed = FALSE),
-  error = function(e) A.mat(geno_rrblup, min.MAF = NULL, return.imputed = FALSE)
-)
-K_mat <- K_mat + diag(1e-4, nrow(K_mat))
+# Manual VanRaden GRM — avoids A.mat() C-level error at small n
+Z_grm   <- geno_rrblup
+p_grm   <- (colMeans(Z_grm) + 1) / 2
+Z_c_grm <- sweep(Z_grm, 2, 2 * (p_grm - 0.5))
+K_mat   <- tcrossprod(Z_c_grm) / (2 * sum(p_grm * (1 - p_grm)))
+rownames(K_mat) <- colnames(K_mat) <- rownames(geno_rrblup)
+K_mat   <- K_mat + diag(1e-4, nrow(K_mat))
 cat("GRM          :", nrow(K_mat), "x", ncol(K_mat), "\n")
 cat("Diagonal mean:", round(mean(diag(K_mat)), 3), "\n\n")
 
@@ -740,13 +742,14 @@ cat("----------------------------------------------------------------------\n")
 cat("SECTION 13 | Hit comparison\n")
 cat("----------------------------------------------------------------------\n")
 
-top_farm <- farmcpu_df[farmcpu_df$sig != "Null", ] |>
-  select(any_of(c("SNP","ID_orig","Chr","Pos","P","logP","sig","Beta","model"))) |>
-  arrange(desc(logP))
+keep_cols <- c("SNP","ID_orig","Chr","Pos","P","logP","sig","Beta","model")
+top_farm  <- farmcpu_df[farmcpu_df$sig != "Null", ]
+top_farm  <- top_farm[, intersect(keep_cols, names(top_farm)), drop = FALSE]
+top_farm  <- top_farm[order(top_farm$logP, decreasing = TRUE), ]
 
-top_mlm <- mlm_df[mlm_df$sig != "Null", ] |>
-  select(any_of(c("SNP","ID_orig","Chr","Pos","P","logP","sig","Beta","model"))) |>
-  arrange(desc(logP))
+top_mlm   <- mlm_df[mlm_df$sig != "Null", ]
+top_mlm   <- top_mlm[, intersect(keep_cols, names(top_mlm)), drop = FALSE]
+top_mlm   <- top_mlm[order(top_mlm$logP, decreasing = TRUE), ]
 
 cat("FarmCPU significant hits:\n")
 if (nrow(top_farm) > 0) {

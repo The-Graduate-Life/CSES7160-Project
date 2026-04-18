@@ -1,5 +1,6 @@
 # ==============================================================================
 # MASTER SCRIPT — Peanut Oleic Acid Genomic Analysis
+#
 # Genomic Dissection and Prediction of Oleic Acid Concentration in Peanut
 #
 # Author  : Fritzner Pierre
@@ -25,7 +26,7 @@
 #
 # ── Execution order ───────────────────────────────────────────────────────────
 #   Script 01 must run first — it generates all .rds and .csv files that the
-#   downstream scripts depend on. Scripts 02–06 can be run independently after
+#   downstream scripts depend on. Scripts 02–07 can be run independently after
 #   Script 01 has completed successfully.
 #
 # ── How to run ────────────────────────────────────────────────────────────────
@@ -98,36 +99,43 @@ if (length(missing_data) > 0) {
 
 run_script <- function(script_name, description) {
   script_path <- file.path(SCRIPTS_DIR, script_name)
-
+  
   if (!file.exists(script_path)) {
     cat(sprintf("  [SKIP] %s not found: %s\n\n", script_name, script_path))
     return(invisible(FALSE))
   }
-
+  
   cat(sprintf("--------------------------------------------------------------\n"))
   cat(sprintf(" Running : %s\n", script_name))
   cat(sprintf(" Purpose : %s\n", description))
   cat(sprintf(" Start   : %s\n", format(Sys.time(), "%H:%M:%S")))
   cat(sprintf("--------------------------------------------------------------\n"))
-
+  
   t0 <- proc.time()
-
-  result <- tryCatch({
-    # chdir = FALSE: keep wd at project root; script calls setwd(here::here())
-    source(script_path, chdir = FALSE, echo = FALSE)
-    TRUE
-  }, error = function(e) {
-    cat(sprintf("\n  [ERROR] %s failed:\n  %s\n\n",
-                script_name, conditionMessage(e)))
-    FALSE
-  }, warning = function(w) {
-    cat(sprintf("\n  [WARNING] %s: %s\n", script_name, conditionMessage(w)))
-    invokeRestart("muffleWarning")
-  })
-
+  
+  result <- tryCatch(
+    withCallingHandlers(
+      {
+        # chdir = FALSE: keep wd at project root; script calls setwd(here::here())
+        source(script_path, chdir = FALSE, echo = FALSE)
+        TRUE
+      },
+      warning = function(w) {
+        # Log warnings but let the script continue running
+        cat(sprintf("\n  [WARNING] %s: %s\n", script_name, conditionMessage(w)))
+        invokeRestart("muffleWarning")
+      }
+    ),
+    error = function(e) {
+      cat(sprintf("\n  [ERROR] %s failed:\n  %s\n\n",
+                  script_name, conditionMessage(e)))
+      FALSE
+    }
+  )
+  
   elapsed <- (proc.time() - t0)[["elapsed"]]
   setwd(PROJECT_DIR)   # always reset wd after each script
-
+  
   status <- if (isTRUE(result)) "OK" else "FAILED"
   cat(sprintf("\n  [%s] %s  (%.1f sec)\n\n", status, script_name, elapsed))
   invisible(isTRUE(result))
@@ -208,6 +216,17 @@ run_script(
 )
 
 
+# ── Script 07: Prediction Diagnostic ────────────────────────────────────────────────────
+# Prediction Diagnostics — Extended Accuracy Metrics (Independent Script)
+# Outputs:
+#   results/gp/prediction_diagnostics_raw.csv
+#   results/gp/prediction_diagnostics_deregressed.csv
+#   results/gp/prediction_diagnostics_combined.csv
+run_script(
+  "07_prediction_diagnostics.R",
+  "Extended prediction accuracy diagnostics (Spearman, MAE, classification, group r)"
+)
+
 # ==============================================================================
 # 3 — OPTIONAL: RENDER QMD REPORT
 # ==============================================================================
@@ -257,4 +276,7 @@ cat("  results/gp/deregressed_blups.csv\n")
 cat("  results/gp/cv_additive_vs_dominance.csv\n")
 cat("  results/gwas_comparison/tables/model_comparison_summary.csv\n")
 cat("  results/plots/  (all figures)\n")
+cat("  results/gp/prediction_diagnostics_raw.csv\n")
+cat("  results/gp/prediction_diagnostics_deregressed.csv\n")
+cat("  results/gp/prediction_diagnostics_combined.csv\n")
 cat("==============================================================\n")

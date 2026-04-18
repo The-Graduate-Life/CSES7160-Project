@@ -629,8 +629,13 @@ cat("----------------------------------------------------------------------\n")
 cat("STEP 7 | Genomic Relationship Matrix\n")
 cat("----------------------------------------------------------------------\n")
 
-K_mat     <- A.mat(geno_rrblup, min.MAF = NULL,
-                   impute.method = "mean", return.imputed = FALSE)
+# Manual VanRaden GRM — avoids A.mat() C-level error at small n
+Z_grm   <- geno_rrblup
+p_grm   <- (colMeans(Z_grm) + 1) / 2
+Z_c_grm <- sweep(Z_grm, 2, 2 * (p_grm - 0.5))
+K_mat   <- tcrossprod(Z_c_grm) / (2 * sum(p_grm * (1 - p_grm)))
+rownames(K_mat) <- colnames(K_mat) <- rownames(geno_rrblup)
+K_mat   <- K_mat + diag(1e-4, nrow(K_mat))
 diag_v    <- diag(K_mat)
 off_v     <- K_mat[lower.tri(K_mat)]
 cat("GRM dim    :", nrow(K_mat), "x", ncol(K_mat), "\n")
@@ -835,9 +840,25 @@ setwd(PROJECT_DIR)
 cat("FarmCPU complete. Output written to results/gwas/\n")
 
 # -- Load results and plot with ggplot2 ----------------------------------------
-res_files <- list.files("results/gwas",
-                        pattern = "FarmCPU.*Results.csv",
-                        full.names = TRUE)
+# GAPIT3 names its output files differently depending on version.
+# Try several known patterns in order of specificity.
+res_files <- list.files("results/gwas", full.names = TRUE,
+                        pattern = "GAPIT\\.Association\\.Statistics.*FarmCPU.*\\.csv$")
+if (length(res_files) == 0)
+  res_files <- list.files("results/gwas", full.names = TRUE,
+                          pattern = "FarmCPU.*\\.csv$")
+if (length(res_files) == 0)
+  res_files <- list.files("results/gwas", full.names = TRUE,
+                          pattern = "\\.GWAS\\.Results\\.csv$")
+if (length(res_files) == 0)
+  res_files <- list.files("results/gwas", full.names = TRUE,
+                          pattern = "\\.csv$")
+
+# Log what is actually in results/gwas/ to help diagnose mismatches
+cat("Files in results/gwas/:\n")
+all_files <- list.files("results/gwas", full.names = FALSE)
+for (f in all_files) cat(" ", f, "\n")
+cat("Pattern matched:", length(res_files), "file(s)\n")
 
 if (length(res_files) == 0) {
   warning("FarmCPU results CSV not found in results/gwas/ — check GAPIT3 output.")
@@ -1148,10 +1169,16 @@ cat("Session info: results/session_info.txt\nDone.\n")
 # ==============================================================================
 # SAVE OBJECTS FOR INDEPENDENT LD ANALYSIS
 # ==============================================================================
-saveRDS(geno_num,  "results/geno_num.rds")
-saveRDS(geno_map,  "results/geno_map.rds")
-saveRDS(gwas_df,   "results/gwas_df.rds")
-cat("Objects saved for independent LD analysis.\n")
+saveRDS(geno_num, "results/geno_num.rds")
+saveRDS(geno_map, "results/geno_map.rds")
+if (exists("gwas_df")) {
+  saveRDS(gwas_df, "results/gwas_df.rds")
+  cat("Objects saved for independent LD analysis.\n")
+} else {
+  cat("WARNING: gwas_df not found — results/gwas_df.rds not saved.\n")
+  cat("         Downstream scripts (LD, Confirmation) require this file.\n")
+  cat("         Check results/gwas/ for GAPIT output CSVs.\n")
+}
 
 
 

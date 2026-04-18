@@ -122,7 +122,13 @@ cat("----------------------------------------------------------------------\n")
 cat("STEP 3 | Build GRM\n")
 cat("----------------------------------------------------------------------\n")
 
-K_mat <- A.mat(geno_rrblup, min.MAF = 0)
+# Manual VanRaden GRM — avoids A.mat() C-level error at small n
+Z_grm   <- geno_rrblup
+p_grm   <- (colMeans(Z_grm) + 1) / 2
+Z_c_grm <- sweep(Z_grm, 2, 2 * (p_grm - 0.5))
+K_mat   <- tcrossprod(Z_c_grm) / (2 * sum(p_grm * (1 - p_grm)))
+rownames(K_mat) <- colnames(K_mat) <- rownames(geno_rrblup)
+K_mat   <- K_mat + diag(1e-4, nrow(K_mat))
 cat("GRM:", nrow(K_mat), "x", ncol(K_mat), "\n\n")
 
 
@@ -248,30 +254,49 @@ cv_store <- data.frame(
   bias = numeric()
 )
 
+# Also collect individual obs/pred pairs for extended diagnostics
+cv_pairs <- data.frame(
+  rep       = integer(),
+  fold      = integer(),
+  Taxa      = character(),
+  observed  = numeric(),
+  predicted = numeric(),
+  stringsAsFactors = FALSE
+)
+
 for (rep in seq_len(N_REPS)) {
   fid <- sample(rep(seq_len(N_FOLDS), length.out = n_total))
-
+  
   for (fold in seq_len(N_FOLDS)) {
     test_idx  <- which(fid == fold)
     train_idx <- which(fid != fold)
-
+    
     # Scale response and K by sqrt(w) for WLS
     y_cv         <- deblup_df$deBLUP * W_sqrt
     y_cv[test_idx] <- NA                       # mask test individuals
-
+    
     K_sc <- diag(W_sqrt) %*% K_mat %*% diag(W_sqrt)   # weighted K
-
+    
     fv <- tryCatch(
       mixed.solve(y = y_cv, K = K_sc),
       error = function(e) NULL
     )
-
+    
     if (!is.null(fv)) {
       # Predicted deBLUP: unscale by dividing by w_sqrt
       yp_scaled  <- as.numeric(fv$u) + as.numeric(fv$beta)
       yp         <- yp_scaled[test_idx] / W_sqrt[test_idx]   # unscale
       yo         <- deblup_df$deBLUP[test_idx]
-
+      
+      cv_pairs <- rbind(cv_pairs, data.frame(
+        rep       = rep,
+        fold      = fold,
+        Taxa      = common_taxa[test_idx],
+        observed  = yo,
+        predicted = yp,
+        stringsAsFactors = FALSE
+      ))
+      
       cv_store <- rbind(cv_store, data.frame(
         rep  = rep,
         fold = fold,
@@ -281,7 +306,7 @@ for (rep in seq_len(N_REPS)) {
       ))
     }
   }
-
+  
   if (rep %% 2 == 0)
     cat(sprintf("  Rep %2d / %d  |  mean r = %.4f\n",
                 rep, N_REPS, mean(cv_store$r, na.rm = TRUE)))
@@ -298,7 +323,9 @@ cat("Bias (slope):", round(mean(cv_store$bias, na.rm = TRUE), 4),
     "(1.0 = unbiased)\n\n")
 
 write.csv(cv_store, "results/gp/gblup_deregressed_cv.csv", row.names = FALSE)
-cat("Table saved: results/gp/gblup_deregressed_cv.csv\n\n")
+cat("Table saved: results/gp/gblup_deregressed_cv.csv\n")
+write.csv(cv_pairs, "results/gp/gblup_deregressed_cv_pairs.csv", row.names = FALSE)
+cat("Table saved: results/gp/gblup_deregressed_cv_pairs.csv\n\n")
 
 
 # ==============================================================================
@@ -396,18 +423,18 @@ orig_cv_file <- "results/gp/gblup_cv_results.csv"
 
 if (file.exists(orig_cv_file)) {
   orig_cv <- read.csv(orig_cv_file, stringsAsFactors = FALSE)
-
+  
   cat(sprintf("Original   CV mean r : %.4f  (SD: %.4f)\n",
               mean(orig_cv$r,    na.rm = TRUE),
               sd(orig_cv$r,      na.rm = TRUE)))
   cat(sprintf("Deregressed CV mean r: %.4f  (SD: %.4f)\n",
               mean(cv_store$r,   na.rm = TRUE),
               sd(cv_store$r,     na.rm = TRUE)))
-
+  
   diff_r <- mean(cv_store$r, na.rm = TRUE) -
-            mean(orig_cv$r,  na.rm = TRUE)
+    mean(orig_cv$r,  na.rm = TRUE)
   cat(sprintf("Difference           : %+.4f\n\n", diff_r))
-
+  
   if (diff_r > 0) {
     cat(">> Deregressed BLUPs yield higher PA.\n")
     cat("   Original BLUPs were double-shrunk; deregression corrects this.\n\n")
@@ -416,13 +443,13 @@ if (file.exists(orig_cv_file)) {
     cat("   With n=108, the PEV estimates may be noisy.\n")
     cat("   Deregression is still the theoretically correct approach.\n\n")
   }
-
+  
   # Side-by-side box plot
   comp_cv <- bind_rows(
     mutate(orig_cv,  method = "Original BLUPs"),
     mutate(cv_store, method = "Deregressed BLUPs")
   )
-
+  
   p_comp <- ggplot(comp_cv, aes(x = method, y = r, fill = method)) +
     geom_boxplot(alpha = 0.75, width = 0.45, colour = "#1B3A2D",
                  outlier.colour = "#B85042", outlier.size = 1.8) +
@@ -439,12 +466,12 @@ if (file.exists(orig_cv_file)) {
     theme_classic(base_size = 12) +
     theme(plot.title    = element_text(face = "bold", colour = "#1B3A2D"),
           plot.subtitle = element_text(colour = "#5C7A65"))
-
+  
   pdf("results/plots/13_cv_original_vs_deregressed.pdf", width = 6, height = 5)
   print(p_comp)
   dev.off()
   cat("Plot saved: results/plots/13_cv_original_vs_deregressed.pdf\n\n")
-
+  
 } else {
   cat("Original CV results not found at", orig_cv_file, "\n")
   cat("Run CSES7160_Fritzner_Analysis.R Step 10 first if you want the comparison.\n\n")
@@ -484,10 +511,10 @@ cat("======================================================================\n")
 cat("Done.\n")
 
 tryCatch({
-sink("results/gp/session_deregressed.txt")
-cat("Deregressed BLUP Genomic Prediction \n")
-cat("Date:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n\n")
-print(sessionInfo())
+  sink("results/gp/session_deregressed.txt")
+  cat("Deregressed BLUP Genomic Prediction \n")
+  cat("Date:", format(Sys.time(), "%Y-%m-%d %H:%M:%S"), "\n\n")
+  print(sessionInfo())
 }, finally = {
   sink()
 })

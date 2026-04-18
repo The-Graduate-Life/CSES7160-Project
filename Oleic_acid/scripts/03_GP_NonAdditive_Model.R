@@ -158,7 +158,13 @@ cat("----------------------------------------------------------------------\n")
 cat("STEP 3 | Build G_A (Additive)\n")
 cat("----------------------------------------------------------------------\n")
 
-G_A <- A.mat(geno_rrblup, min.MAF = 0)
+# Manual VanRaden GRM — avoids A.mat() C-level error at small n
+Z_grm   <- geno_rrblup
+p_grm   <- (colMeans(Z_grm) + 1) / 2
+Z_c_grm <- sweep(Z_grm, 2, 2 * (p_grm - 0.5))
+G_A   <- tcrossprod(Z_c_grm) / (2 * sum(p_grm * (1 - p_grm)))
+rownames(G_A) <- colnames(G_A) <- rownames(geno_rrblup)
+G_A   <- G_A + diag(1e-4, nrow(G_A))
 cat("G_A:", nrow(G_A), "x", ncol(G_A), "\n\n")
 
 
