@@ -37,7 +37,7 @@ The large gap between H² and h²_g (0.47) suggests epistatic effects or polygen
 |------|-------------|--------|
 | `Oleic_acid/data/values.csv` | Oleic acid phenotypes (315 obs., 104–108 accessions) | [PeanutBase](https://arachispheno.peanutbase.org) |
 | `Oleic_acid/data/arahy.Tifrunner.gnm1.mrk.Axiom_Arachis_58K.gff3` | SNP position map (115 markers) | Legume Information System (LIS) |
-| `Oleic_acid/data/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020.main.vcf` | Genotype calls (58 MB VCF) | LIS / Otyama & Kulkarni et al. 2020 (G3) |
+| `Oleic_acid/data/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020.main.vcf` | Genotype calls (58 MB VCF) | LIS / Otyama & Kulkarni et al. 2020 |
 
 
 ## Repository Structure
