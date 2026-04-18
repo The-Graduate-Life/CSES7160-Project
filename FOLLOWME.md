@@ -323,7 +323,7 @@ Re-download the VCF from LIS DataStore (see README.md for the Otyama & Kulkarni 
 ## How to cite
 
 
-> Pierre, F. (2026). *Genomic dissection and prediction of oleic acid concentration in peanut using high-density SNP markers*. CSES 7160 — Genetic Data Analysis, Auburn University. GitHub. https://github.com/The-Graduate-Life/CSES7160-Project
+> Pierre, F. (2026). *Genomic dissection and prediction of oleic acid concentration in peanut using high-density SNP markers*. GitHub. https://github.com/The-Graduate-Life/CSES7160-Project
 
 **Data sources you used (for reference):**
 > Pandey, M. K., Agarwal, G., Kale, S. M., Clevenger, J., Nayak, S. N., Sriswathi, M., & Varshney, R. K. (2017). Development and evaluation of a high density genotyping 'Axiom_Arachis' array with 58K SNPs for accelerating genetics and breeding in groundnut. *Scientific Reports*, *7*, 40577.[https://doi.org/10.1038/sep40577](https://doi.org/10.1038/srep40577).
