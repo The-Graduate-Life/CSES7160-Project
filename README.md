@@ -153,6 +153,19 @@ devtools::install_github("jiabowang/GAPIT3")
 
 ---
 
+## **AI Assistance Disclosure**
+
+Portions of this analysis were developed with assistance from [Claude](https://claude.ai/) (Anthropic, claude.sonnet-4-6, 2026). AI assistance was used for the following tasks:
+
+- Debugging R code and resolving package compatibility issues (rrBLUP, GAPIT3, sommer)
+- Reviewing and refining statistical model implementations (GBLUP, deregressed BLUPs, dominance relationship matrix)
+- Organizing the master pipeline script
+
+All statistical decisions, biological interpretations, and analytical choices were made by the author. AI-generated code and text were reviewed, tested, and modified as needed before inclusion. The underlying data, methods, and conclusions are the author's own work.
+
+---
+
+
 ## References
 
 - Garrick, D. J., Taylor, J. F., & Fernando, R. L. (2009). Deregressing estimated breeding values and weighting information for genomic regression analyses. *Genetics Selection Evolution, 41(1)*, 55. [https://doi.org/10.1186/1297-9686-41-55](https://doi.org/10.1186/1297-9686-41-55).
