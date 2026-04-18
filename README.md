@@ -174,6 +174,6 @@ All statistical decisions, biological interpretations, and analytical choices we
 
 - Otyama, P. I., Wilkey, A., Kulkarni, R., Assefa, T., Chu, Y., Clevenger, J., ... & Cannon, S. B. (2019). Evaluation of linkage disequilibrium, population structure, and genetic diversity in the US peanut mini core collection. *BMC genomics, 20(1)*, 481. [https://doi.org/10.1186/s12864-019-5824-9](https://doi.org/10.1186/s12864-019-5824-9).
 
-- VanRaden PM (2008) Efficient methods to compute genomic predictions. *Journal of Dairy Science* 91:4414–4423.[https://doi.org/10.3168/jds.2007-0980](https://doi.org/10.3168/jds.2007-0980).
+- VanRaden PM (2008) Efficient methods to compute genomic predictions. *Journal of Dairy Science* 91:4414–4423. [https://doi.org/10.3168/jds.2007-0980](https://doi.org/10.3168/jds.2007-0980).
 
-- Vitezica, Z. G., Varona, L., & Legarra, A. (2013). On the additive and dominant variance and covariance of individuals within the genomic selection scope. Genetics, 195(4), 1223-1230.[https://doi.org/10.1534/genetics.113.155176](https://doi.org/10.1534/genetics.113.155176).
+- Vitezica, Z. G., Varona, L., & Legarra, A. (2013). On the additive and dominant variance and covariance of individuals within the genomic selection scope. Genetics, 195(4), 1223-1230. [https://doi.org/10.1534/genetics.113.155176](https://doi.org/10.1534/genetics.113.155176).
