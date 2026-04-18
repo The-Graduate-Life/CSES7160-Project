@@ -124,7 +124,7 @@ Script 01 (Required) → generates .rds files and core outputs
 - GBLUP via `rrBLUP::mixed.solve`
 - 5-fold cross-validation, 10 replicates
 - Deregressed BLUPs (Garrick 2009) to eliminate double-shrinkage bias
-- Additive + dominance model via `sommer::mmer` (Vitezica et al. 2013)
+- Additive + dominance model via `sommer::mmer` (Vitezica et al., 2013)
 
 ### LD Analysis
 - Pairwise r² in ±500 kb window around top GWAS hit
