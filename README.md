@@ -72,7 +72,7 @@ CSES7160-Project/
         ├── gwas_df.rds          # GWAS results object
         └── session_info.txt     # R session/package versions
 ```
--
+
 
 ## Analysis Pipeline
 
