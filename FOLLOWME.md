@@ -133,7 +133,7 @@ Make sure these three files exist inside `Oleic_acid/data/`:
 
 In RStudio's **Files** panel (bottom-right), navigate to `Oleic_acid/data/` and confirm all three files are present.
 
-If the VCF file is missing, download it from the Legume Information System (LIS) DataStore — see [REDAME](README.md) for the citation.
+If the VCF file is missing, download it from the Legume Information System (LIS) DataStore — see [README](README.md) for the citation.
 
 
 
