@@ -112,7 +112,7 @@ Script 01 (Required) → generates .rds files and core outputs
 - Principal component analysis (PCA) on GRM
 
 ### Heritability
-- Narrow-sense genomic h²_g from GBLUP (rrBLUP)
+- Narrow-sense genomic h² from GBLUP (rrBLUP)
 - Bootstrap 95% confidence intervals
 - Broad-sense H² from lmer variance components
 
