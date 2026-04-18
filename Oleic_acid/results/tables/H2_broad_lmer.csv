@@ -1,0 +1,4 @@
+"Parameter","Estimate","Description"
+"sigma2_G",47.493962,"Among-accession genetic variance (lmer)"
+"sigma2_e",13.290847,"Within-accession residual variance (lmer)"
+"H2_broad",0.781346,"Broad-sense heritability"

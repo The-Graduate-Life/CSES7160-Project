@@ -1,0 +1,14 @@
+"Statistic","Value"
+"n accessions",104
+"n replicates",315
+"Mean raw (%)",53.6638
+"SD raw (%)",7.7207
+"CV raw (%)",14.3871
+"Min raw (%)",36.62
+"Max raw (%)",81.52
+"Skewness raw",0.4448
+"Kurtosis raw",2.6173
+"Shapiro-Wilk p (raw)",0
+"Mean BLUP",0.064
+"SD BLUP",6.4594
+"Shapiro-Wilk p (BLUP)",4e-04

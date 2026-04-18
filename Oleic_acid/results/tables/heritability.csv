@@ -1,0 +1,7 @@
+"Parameter","Estimate","Description"
+"sigma2_g",8.177646,"Genomic variance"
+"sigma2_e",18.309891,"Residual variance"
+"sigma2_P",26.487537,"Phenotypic variance of BLUPs"
+"h2g",0.308736,"Genomic heritability"
+"h2g_CI_lower",0.595284,"Bootstrap 95% CI lower"
+"h2g_CI_upper",0.999939,"Bootstrap 95% CI upper"
