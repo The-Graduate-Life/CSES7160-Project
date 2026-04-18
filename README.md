@@ -112,12 +112,12 @@ Script 01 (Required) → generates .rds files and core outputs
 - Principal component analysis (PCA) on GRM
 
 ### Heritability
-- Narrow-sense genomic h² from GBLUP (rrBLUP)
+- Narrow-sense genomic h²_g from GBLUP (rrBLUP)
 - Bootstrap 95% confidence intervals
 - Broad-sense H² from lmer variance components
 
 ### GWAS
-- **FarmCPU** (Liu et al. 2016): chosen for its power under small n (108 accessions) via pseudo-QTN fixed effects; controls inflation better than MLM
+- **FarmCPU** (Liu et al., 2016): chosen for its power under small n (108 accessions) via pseudo-QTN fixed effects; controls inflation better than MLM
 - Significance thresholds: genome-wide (p < 5 × 10⁻⁸), suggestive (p < 1 × 10⁻⁵)
 
 ### Genomic Prediction
