@@ -117,14 +117,14 @@ Script 01 (Required) → generates .rds files and core outputs
 - Broad-sense H² from lmer variance components
 
 ### GWAS
-- **FarmCPU** (Liu et al. 2016, PLOS Genetics): chosen for its power under small n (108 accessions) via pseudo-QTN fixed effects; controls inflation better than MLM
+- **FarmCPU** (Liu et al. 2016): chosen for its power under small n (108 accessions) via pseudo-QTN fixed effects; controls inflation better than MLM
 - Significance thresholds: genome-wide (p < 5 × 10⁻⁸), suggestive (p < 1 × 10⁻⁵)
 
 ### Genomic Prediction
 - GBLUP via `rrBLUP::mixed.solve`
 - 5-fold cross-validation, 10 replicates
 - Deregressed BLUPs (Garrick 2009) to eliminate double-shrinkage bias
-- Additive + dominance model via `sommer::mmer` (Vitezica et al. 2013 G_D matrix)
+- Additive + dominance model via `sommer::mmer` (Vitezica et al. 2013)
 
 ### LD Analysis
 - Pairwise r² in ±500 kb window around top GWAS hit
