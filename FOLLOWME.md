@@ -58,7 +58,7 @@ git clone https://github.com/The-Graduate-Life/CSES7160-Project.git
 # On the GitHub repository page, click the green **Code** button and copy the link under the SSH. Use:
 # git clone git@github.com:The-Graduate-Life/CSES7160-Project.git
 
-# The navigate to the cloned repository:
+# And then, navigate to the cloned repository:
 
 cd CSES7160-Project
 ```
