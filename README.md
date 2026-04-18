@@ -47,7 +47,7 @@ CSES7160-Project/
 ├── README.md
 ├── FOLLOWME.md                  # Beginner-friendly reproduction guide
 └── Oleic_acid/
-    ├── .here                    # Project root marker (for here::here())
+    ├── .here                    # Project root marker (for reproducibility)
     ├── data/                    # Raw input files (DO NOT modify)
     │   ├── values.csv
     │   ├── arahy.Tifrunner.gnm1.mrk.Axiom_Arachis_58K.gff3
