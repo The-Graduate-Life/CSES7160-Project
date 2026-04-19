@@ -1,0 +1,11 @@
+"Metric","Raw BLUP","Deregressed"
+"95% CI lower",0.4901,0.9425
+"95% CI upper",0.8906,0.9856
+"Bias slope",1.1705,0.9017
+"Classification accuracy",0.9135,0.9692
+"High-oleic group r",0.2445,0.9229
+"Low-oleic group r",0.1366,0.6697
+"MAE (% oleic)",2.8145,8.8702
+"Mean CV r",0.686,0.9655
+"SD ratio (pred/obs)",0.6924,1.0699
+"Spearman rho",0.8009,0.9532

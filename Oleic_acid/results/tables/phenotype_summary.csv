@@ -6,8 +6,8 @@
 "CV raw (%)",14.3871
 "Min raw (%)",36.62
 "Max raw (%)",81.52
-"Skewness raw",0.4448
-"Kurtosis raw",2.6173
+"Skewness",0.4448
+"Kurtosis",2.6173
 "Shapiro-Wilk p (raw)",0
 "Mean BLUP",0.064
 "SD BLUP",6.4594

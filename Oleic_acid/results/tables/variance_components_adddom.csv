@@ -1,10 +1,8 @@
-"Parameter","Estimate","Description"
-"sigma2_a",8.143355,"Additive genomic variance (sommer)"
-"sigma2_d",0.122529,"Dominance genomic variance (sommer)"
-"sigma2_e",18.279312,"Residual variance (sommer)"
-"Vp",26.545196,"Total phenotypic variance"
-"h2_additive",0.306773,"h2 from additive component only"
-"h2_add_plus_dom",0.311389,"h2 from additive + dominance"
-"dominance_ratio",0.004616,"Dominance share of Vp (Vd/Vp)"
-"h2g_additive_only",0.308736,"h2_g additive GBLUP (rrBLUP)"
-"H2_broad_sense",0.781346,"Broad-sense H2 (lmer, from H2_broad_lmer.csv)"
+"Component","Estimate"
+"sigma²_a (additive)",8.143354
+"sigma²_d (dominance)",0.122529
+"sigma²_e (residual)",18.278498
+"Vp",26.544382
+"h² additive",0.306783
+"h² add + dom",0.311399
+"Vd/Vp (dominance ratio)",0.004616

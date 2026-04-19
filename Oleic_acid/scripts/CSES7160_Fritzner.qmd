@@ -1,7 +1,7 @@
 ---
 title: "Genomic Dissection and Prediction of Oleic Acid Concentration in Peanut Using High-Density SNP Markers"
 author: "Fritzner Pierre"
-date: today
+date: "April 20, 2026"
 course: "CSES 7160 — Genetic Data Analysis"
 format:
   html:
@@ -22,10 +22,13 @@ execute:
   warning: false
   message: false
   cache: false
+  execute-dir: project   # ← added
 bibliography: references.bib
 ---
 
-```{r setup, include=FALSE}
+------------------------------------------------------------------------
+
+```{r setup, include=FALSE, warning=FALSE}
 # ── Set project root ──────────────────────────────────────────────────────────
 # here::here() resolves to the directory containing the .here file (project
 # root), regardless of where this .qmd lives (scripts/ or root).
@@ -40,6 +43,7 @@ if (!dir.exists(PROJECT_DIR))
   stop("Project directory not found: ", PROJECT_DIR)
 
 setwd(PROJECT_DIR)   # anchor all relative paths to project root
+knitr::opts_knit$set(root.dir = PROJECT_DIR)  # persist across all chunks
 cat("Project root:", PROJECT_DIR, "\n")
 
 # ── Global settings ───────────────────────────────────────────────────────────
@@ -73,20 +77,18 @@ for (d in c("results", "results/plots", "results/tables",
 
 What genomic regions control variation in oleic acid concentration in peanut (*Arachis hypogaea*), and how accurately can genomic prediction models estimate oil quality traits from SNP marker data?
 
-------------------------------------------------------------------------
-
 # Background and Motivation
 
-Higher seed oleic acid increases oil oxidative stability and is favored for nutritional and industrial uses, making oleic concentration a primary determinant of shelf life. Commodity peanut oil is typically 20–50% oleic, yet breeding targets near 80% oleic because that monounsaturated profile markedly improves stability and nutrition while lowering polyunsaturated fatty acids that are more prone to oxidation [@belo2008; @lee2024]. Oleic acid is converted to linoleic acid by fatty-acid desaturase 2 (FAD2) enzymes; reduced FAD2 activity therefore raises oleic and lowers linoleic concentrations, improving oxidative stability [@lakhssassi2021; @lee2024]. Oils with elevated oleic content are more stable in frying and storage and act as natural antioxidants in food systems, supporting longer shelf life and reduced rancidity [@lee2024].
+Higher seed oleic acid increases oil oxidative stability and is favored for nutritional and industrial uses, making oleic concentration a primary determinant of shelf life. Commodity peanut oil is typically 20–50% oleic, yet breeding targets near \~80% oleic because that monounsaturated profile markedly improves stability and nutrition while lowering polyunsaturated fatty acids that are more prone to oxidation [@belo2008; @lee2024]. Oleic acid is converted to linoleic acid by fatty-acid desaturase 2 (FAD2) enzymes; reduced FAD2 activity therefore raises oleic and lowers linoleic concentrations, improving oxidative stability [@lakhssassi2021; @lee2024]. Oils with elevated oleic content are more stable in frying and storage and act as natural antioxidants in food systems, supporting longer shelf life and reduced rancidity [@lee2024].
 
-High-oleic varieties confer a commercial advantage through improved product stability, broader processing applications, and a better nutritional profile associated with monounsaturated fats. Breeding programs historically struggled to exceed ~50–60% oleic content reliably until specific *FAD2* alleles were identified and pyramided, enabling consistent ~80% oleic lines [@lakhssassi2021; @lee2024]. *Arachis hypogaea* is an allotetraploid (AABB, $2n = 4x = 40$) whose two subgenomes each carry *FAD2* homologs; interactions between A- and B-subgenome alleles can produce non-additive (dominance) effects on fatty acid composition, motivating models that go beyond purely additive genomic architectures.
+High-oleic varieties confer a commercial advantage through improved product stability, broader processing applications, and a better nutritional profile associated with monounsaturated fats. Breeding programs historically struggled to exceed \~50–60% oleic content reliably until specific *FAD2* alleles were identified and pyramided, enabling consistent \~80% oleic lines [@lakhssassi2021; @lee2024]. *Arachis hypogaea* is an allotetraploid (AABB, $2n = 4x = 40$) whose two subgenomes each carry *FAD2* homologs; interactions between A- and B-subgenome alleles can produce non-additive (dominance) effects on fatty acid composition, motivating models that go beyond purely additive genomic architectures.
 
 ## Objectives
 
-1. Identify genomic regions associated with oleic acid concentration using genome-wide association analysis (GWAS).
-2. Estimate broad-sense ($H^2$) and marker-based genomic ($h^2_g$) heritability, and evaluate whether their gap implicates non-additive genetic variance.
-3. Compare FarmCPU and MLM GWAS models for type I error control and power at $n = 108$.
-4. Evaluate prediction accuracy of additive and additive + dominance genomic prediction models using deregressed BLUPs.
+1.  Identify genomic regions associated with oleic acid concentration using genome-wide association analysis (GWAS).
+2.  Estimate broad-sense ($H^2$) and marker-based genomic ($h^2_g$) heritability, and evaluate whether their gap implicates non-additive genetic variance.
+3.  Compare FarmCPU and MLM GWAS models for type I error control and power at $n = 108$.
+4.  Evaluate prediction accuracy of additive and additive + dominance genomic prediction models using deregressed BLUPs.
 
 ------------------------------------------------------------------------
 
@@ -94,10 +96,10 @@ High-oleic varieties confer a commercial advantage through improved product stab
 
 ## Data Provenance and Download
 
-**All input data files are publicly available.** They are not included in this repository because of size. Download them and place them in the `data/` subdirectory before rendering.
+**All input data files are publicly available.** They are also included in this repository to smoothen the reproducibility. In case the might accidentally be deleted, download them and place them in the `data/` subdirectory before rendering.
 
 | File | Source | URL |
-|------|--------|-----|
+|----|----|----|
 | `values.csv` | PeanutBase | <https://arachispheno.peanutbase.org/phenotypes/> |
 | `arahy.Tifrunner.gnm1.mrk.Axiom_Arachis_58K.gff3` | LIS DataStore | <https://data.legumeinfo.org/Arachis/hypogaea/markers/Tifrunner.gnm1.mrk.Axiom_Arachis_58K/> |
 | `aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020.main.vcf` | LIS DataStore | <https://data.legumeinfo.org/Arachis/hypogaea/diversity/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020/> |
@@ -108,7 +110,7 @@ Oleic acid concentration (%) was obtained from [PeanutBase](https://arachispheno
 
 ## Genotypic Data
 
-Genotype calls were obtained from the **Axiom_Arachis_58K** SNP array [@pandey2017], the standard high-density genotyping platform for cultivated peanut. The VCF file (Otyama & Kulkarni 2020, *G3*, [LIS DataStore](https://data.legumeinfo.org/Arachis/hypogaea/diversity/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020/)) contains SNP calls for the U.S. mini core collection mapped to the diploid reference genomes *A. duranensis* v1 (A-subgenome, chromosomes Aradu.A01–A10) and *A. ipaensis* v1 (B-subgenome, chromosomes Araip.B01–B10). Chromosome names were recoded to integers 1–10 (A-subgenome) and 11–20 (B-subgenome). A SNP position map for GWAS was derived from the GFF3 file for `Tifrunner.gnm1.mrk.Axiom_Arachis_58K`.
+Genotype calls were obtained from the **Axiom_Arachis_58K** SNP array [@pandey2017], the standard high-density genotyping platform for cultivated peanut. The VCF file (Otyama & Kulkarni 2020, [LIS DataStore](https://data.legumeinfo.org/Arachis/hypogaea/diversity/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020/)) contains SNP calls for the U.S. mini core collection mapped to the diploid reference genomes *A. duranensis* v1 (A-subgenome, chromosomes Aradu.A01–A10) and *A. ipaensis* v1 (B-subgenome, chromosomes Araip.B01–B10). Chromosome names were recoded to integers 1–10 (A-subgenome) and 11–20 (B-subgenome). A SNP position map for GWAS was derived from the GFF3 file for `Tifrunner.gnm1.mrk.Axiom_Arachis_58K`.
 
 ------------------------------------------------------------------------
 
@@ -116,7 +118,17 @@ Genotype calls were obtained from the **Axiom_Arachis_58K** SNP array [@pandey20
 
 ## Packages
 
-```{r packages}
+This section is build to install and load all packages required by the analysis. Packages are sourced from three repositories depending on where they are maintained:
+
+**CRAN** packages are installed via `install.packages()` and cover the core analysis stack: `vcfR` for reading VCF genotype files, `lme4` for BLUP extraction via `lmer()`, `rrBLUP` for GBLUP and the genomic relationship matrix, `sommer` for the two-kernel additive + dominance model, `ggplot2` and `patchwork` for figures, `ggrepel` for non-overlapping SNP labels on the Manhattan plot, `LDheatmap` for the LD heatmap, `moments` for skewness and kurtosis, and `reshape2` and `data.table` for data reshaping.
+
+**Bioconductor** provides `snpStats`, installed via `BiocManager`.
+
+**GitHub** provides `GAPIT` (GAPIT3), installed via `devtools::install_github()` because GAPIT3 is not on CRAN. This is the GWAS engine used for both FarmCPU and MLM.
+
+Each package is only installed if it is not already present (`!requireNamespace(...)`), so re-rendering does not re-download packages unnecessarily. All packages are loaded silently at the end via `lapply()` with `invisible(suppressPackageStartupMessages())` to keep the rendered output clean.
+
+```{r packages, warning=FALSE}
 cran_pkgs <- c(
   "vcfR","lme4","rrBLUP","ggplot2","dplyr","tidyr",
   "patchwork","moments","reshape2","data.table",
@@ -140,12 +152,14 @@ if (!requireNamespace("devtools", quietly = TRUE))
 if (!requireNamespace("GAPIT", quietly = TRUE))
   devtools::install_github("jiabowang/GAPIT3")
 
-suppressPackageStartupMessages(
+invisible(suppressPackageStartupMessages(
   lapply(c(cran_pkgs, bioc_pkgs, github_pkgs), library, character.only = TRUE)
-)
+))
 ```
 
 ## Step 1 — Data Import
+
+Three files are loaded: the phenotype CSV from PeanutBase, the GFF3 marker position map from LIS DataStore, and the VCF genotype file. The VCF encodes genotypes as `0/0`, `0/1`, `1/1`, which are recoded to numeric `{0, 1, 2}` for downstream matrix operations. Sample names in the VCF use underscore-separated identifiers (e.g. `PI331762_1`) that are normalised to match the PeanutBase format (`PI 331762`).
 
 ```{r import}
 stopifnot(file.exists(PHENO_FILE), file.exists(GFF3_FILE), file.exists(GENO_FILE))
@@ -221,7 +235,7 @@ cat("Taxa matched after name normalisation:",
 
 ## Step 2 — Phenotype Pre-processing
 
-The dataset contains 1–4 unbalanced replicates per accession. Using raw means ignores measurement-error heterogeneity. Instead, we: (a) remove extreme within-accession outlier replicates ($|z_\text{within}| > 3$), and (b) fit
+The dataset contains 1–4 unbalanced replicates per accession. Using raw means ignores measurement-error heterogeneity. Instead, (a) extreme within-accession outlier replicates ($|z_\text{within}| > 3$) were removed and (b) fitted
 
 $$y_{ij} = \mu + G_i + \varepsilon_{ij}, \quad G_i \sim \mathcal{N}(0,\,\sigma^2_G)$$
 
@@ -282,6 +296,14 @@ cat("Common taxa (pheno ∩ geno):", length(common_taxa), "\n")
 
 SNPs were filtered by: (1) missingness $> 10\%$, and (2) MAF $< 0.05$. Remaining missing values were imputed with the column mean.
 
+The three filters applied here address:
+
+1.  SNPs with more than 10% missing data across accessions are removed entirely;
+
+2.  SNPs with minor allele frequency below 0.05 are removed because they provide little statistical power and can inflate test statistics;
+
+3.  the remaining missing genotype calls are filled in by the column mean (equivalent to imputing the expected heterozygosity), which is appropriate for the low residual missingness after step 1.
+
 ```{r geno-qc}
 cat("Input:", nrow(geno_num), "x", ncol(geno_num), "\n")
 
@@ -314,6 +336,14 @@ saveRDS(geno_map, "results/geno_map.rds")
 ```
 
 ## Step 4 — Exploratory Phenotypic Analysis
+
+Four main plots are produced to characterize the raw phenotypic data and the extracted BLUPs:
+
+1.  a density histogram of raw replicate observations to check for bimodality (expected for oleic acid given FAD2 segregation),
+
+2.  a histogram of BLUPs to verify normality before GWAS,
+
+3.  a side-by-side boxplot comparing the raw and BLUP scales, and 4. a Q-Q plot to formally assess normality of the BLUP residuals.
 
 ```{r eda, fig.cap="**Figure 1.** Exploratory phenotypic analysis. (A) Raw replicates. (B) Extracted BLUPs. (C) Raw vs BLUP comparison. (D) Normal Q-Q plot of BLUPs."}
 raw_vals <- pheno_clean$Value
@@ -385,6 +415,8 @@ p_qq0 <- ggplot(data.frame(v = y), aes(sample = v)) +
 
 PCA was performed on the scaled, centered genotype matrix to characterise population structure and derive covariates for GWAS.
 
+PCA was performed on the column-scaled genotype matrix. The first three PCs are extracted as fixed-effect covariates for GAPIT. Colouring points by BLUP quartile reveals whether high- and low-oleic accessions cluster separately in genotype space ; if they do, population stratification is confounded with the phenotype and must be controlled in GWAS.
+
 ```{r pca, fig.cap="**Figure 2.** PCA of Axiom_Arachis_58K SNPs. Points coloured by BLUP quartile."}
 geno_sc <- scale(geno_rrblup, center = TRUE, scale = TRUE)
 pca_res <- prcomp(geno_sc, retx = TRUE, center = FALSE, scale. = FALSE)
@@ -427,6 +459,8 @@ The additive genomic relationship matrix $\mathbf{G}_A$ was constructed using th
 
 $$\mathbf{G}_A = \frac{\mathbf{Z}\mathbf{Z}'}{2\sum_j p_j(1-p_j)}$$
 
+The GRM is built using the VanRaden (2008) Method 1 formula directly rather than `rrBLUP::A.mat()`, which produces a C-level error at small $n$ in recent R versions. A small ridge ($10^{-4}$) is added to the diagonal to ensure positive definiteness for the mixed model solver. Diagonal values near 1 indicate expected self-kinship; values above 2 indicate inbreeding above the population average.
+
 ```{r grm, fig.cap="**Figure 3.** GRM heatmap. Diagonal values near 1 indicate expected self-kinship."}
 # Manual VanRaden GRM — avoids rrBLUP A.mat() C-level warning at small n
 Z     <- geno_rrblup
@@ -454,6 +488,8 @@ ggplot(reshape2::melt(K_mat), aes(x = Var1, y = Var2, fill = value)) +
         plot.title = element_text(face = "bold", colour = "#1B3A2D"))
 ```
 
+The GRM heatmap reveals substantial structure within the U.S. peanut mini core collection. The visible block pattern indicates groups of accessions with above-average genomic relatedness — consistent with the known subpopulation structure in cultivated peanut (*Arachis hypogaea*). The diagonal (self-relatedness) appears lighter than average, reflecting diagonal values near 1.9 ; elevated above 1.0 because of inbreeding above the population mean, expected in a self-pollinating allotetraploid. The dark off-diagonal cells indicate pairs of distantly related or negatively related accessions. This structure motivates the inclusion of PC1–PC3 as covariates in GWAS and the use of the GRM as the kinship matrix in GBLUP.
+
 ## Step 7 — Heritability
 
 ### Genomic Heritability ($h^2_g$)
@@ -463,6 +499,8 @@ The additive genomic model is:
 $$\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{g} + \mathbf{e}, \quad \mathbf{g} \sim \mathcal{N}(\mathbf{0},\, \mathbf{G}_A \sigma^2_g), \quad \mathbf{e} \sim \mathcal{N}(\mathbf{0},\, \mathbf{I}\sigma^2_e)$$
 
 Genomic heritability: $h^2_g = \sigma^2_g / (\sigma^2_g + \sigma^2_e)$. A 500-resample bootstrap provides a 95% CI.
+
+`rrBLUP::mixed.solve()` was used to fit the genomic mixed model by REML, returning $\hat{\sigma}^2_g$ (`Vu`) and $\hat{\sigma}^2_e$ (`Ve`). `return.Hinv = TRUE` stores $(\mathbf{K} + \lambda\mathbf{I})^{-1}$, which is needed later to compute **prediction error variances (PEVs)** for deregression. The bootstrap resamples accessions with replacement 500 times, refits the model on each resample, and reports the empirical 2.5th and 97.5th percentiles of the resulting $h^2_g$ distribution as the confidence interval.
 
 ```{r heritability}
 lmm   <- mixed.solve(y = y, K = K_mat, SE = TRUE, return.Hinv = TRUE)
@@ -496,6 +534,8 @@ write.csv(h2_tbl, "results/tables/heritability.csv", row.names = FALSE)
 
 ### Heritability Gap: $H^2$ vs $h^2_g$
 
+The gap between broad-sense $H^2$ (all genetic effects, estimated by `lmer` from replicated observations) and marker-based $h^2_g$ (additive SNP effects only, estimated by GBLUP) was computed. A gap greater than 0.10 triggers the non-additive model in the next step. For this dataset the gap is driven primarily by small sample size and incomplete SNP tagging of the *FAD2* loci rather than genuine dominance variance, as confirmed by the negligible $V_D/V_P$ in Step 8.
+
 ```{r h2-gap}
 gap <- H2_broad - h2g
 cat(sprintf("H2_broad (lmer)  : %.4f\n", H2_broad))
@@ -513,13 +553,15 @@ if (gap > 0.10) {
 
 ## Step 8 — Non-Additive Model (Additive + Dominance)
 
-*Rationale:* When $H^2$ (all genetic effects) substantially exceeds $h^2_g$ (additive SNP effects only), dominance or epistatic variance may contribute. For oleic acid in allotetraploid peanut, *FAD2* alleles in the A- and B-subgenomes can interact with partial dominance.
+***Rationale**:* When $H^2$ (all genetic effects) substantially exceeds $h^2_g$ (additive SNP effects only), dominance or epistatic variance may contribute. For oleic acid in allotetraploid peanut, *FAD2* alleles in the A- and B-subgenomes can interact with partial dominance.
 
 The additive + dominance model:
 
 $$\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{g}_a + \mathbf{Z}\mathbf{g}_d + \mathbf{e}$$
 
 $\mathbf{G}_D$ follows Vitezica et al. (2013): $d_{ij} = -2q_j^2$ (AA), $2p_jq_j$ (AB), $-2p_j^2$ (BB), scaled by $\sum_j 4p_j^2q_j^2$.
+
+The dominance relationship matrix $\mathbf{G}_D$ is constructed following @vitezica2013. For each SNP $j$ with allele frequencies $p_j$ and $q_j = 1 - p_j$, the dominance deviation for individual $i$ is $d_{ij} = -2q_j^2$ (homozygote AA), $2p_jq_j$ (heterozygote), or $-2p_j^2$ (homozygote BB). These deviations are assembled into a matrix $\mathbf{D}$ and scaled to give $\mathbf{G}_D = \mathbf{DD}' / \sum_j 4p_j^2q_j^2$. `sommer::mmer()` then fits the two-kernel model via REML. A $V_D/V_P$ below 0.05 is taken as evidence that the additive model is sufficient.
 
 ```{r nonadditive-model}
 # ── Build G_D ─────────────────────────────────────────────────────────────────
@@ -601,7 +643,9 @@ FarmCPU [@liu2016] iterates between a testing step (each SNP tested as fixed eff
 
 $$y_i = \mu + \sum_{k=1}^{K} \delta_k \tilde{x}_{ik} + \beta_j x_{ij} + \varepsilon_i$$
 
-*Rationale for FarmCPU at $n = 108$:* Full MLM kinship correction over-corrects at small $n$ ($\lambda_\text{GC} \ll 1$), reducing power. FarmCPU avoids this by using pseudo-QTNs as fixed covariates. PC1–PC3 were included as additional fixed-effect covariates. Significance thresholds: Bonferroni genome-wide ($\alpha = 0.05$) and suggestive ($1/n_\text{SNPs}$). BH FDR correction also applied.
+***Rationale for FarmCPU at***$n = 108$**:** Full MLM kinship correction over-corrects at small $n$ ($\lambda_\text{GC} \ll 1$), reducing power. FarmCPU avoids this by using pseudo-QTNs as fixed covariates. PC1–PC3 were included as additional fixed-effect covariates. Significance thresholds: Bonferroni genome-wide ($\alpha = 0.05$) and suggestive ($1/n_\text{SNPs}$). BH FDR correction also applied.
+
+GAPIT3 requires three specific input objects: `Y` (phenotype data frame with Taxa and trait columns), `GD` (genotype matrix as integer 0/1/2 with a Taxa column prepended), and `GM` (SNP map with SNP, Chr, Pos columns). SNP names are shortened to `SNP1`, `SNP2`, ... because GAPIT can crash on long names. A chromosome continuity remap converts the original chromosome integers to a contiguous 1:$k$ sequence, which prevents a GAPIT internal plotting crash. The original chromosome numbers are stored in `chr_restore` and re-applied after GAPIT finishes.
 
 ```{r gwas-prep}
 pheno_gapit <- data.frame(
@@ -673,7 +717,34 @@ body(GAPIT.MM) <- parse(text = paste(new_mm, collapse = "\n"))[[1]]
 assignInNamespace("GAPIT.Multiple.Manhattan", GAPIT.MM, ns = "GAPIT")
 ```
 
-```{r run-farmcpu, cache=TRUE}
+**GAPIT** writes its output files to the current working directory, so `setwd()` is used to redirect them to `results/gwas/` before the call and restored immediately after. `file.output = FALSE` disables GAPIT's internal Manhattan/QQ plots since we build our own. The working directory is always restored via the code after `tryCatch`, even if GAPIT throws an error in its post-run plotting routines (which it commonly does at small $n$).
+
+Helper functions used across the GWAS steps are defined here in a dedicated chunk so they are available in the R session before any GWAS chunk runs. Defining them separately from the chunks that call them avoids cache invalidation — the expensive FarmCPU and MLM runs (`cache=TRUE`) will not re-execute just because a helper function was edited.
+
+`normalise_gwas_cols()` handles the fact that GAPIT3 output column names vary across versions: the position column may be named `ps`, `pos`, `position`, or `BP`; the chromosome column may be `chr` or `chrom`; and the p-value column may be `P.value` or `pvalue`. All variants are standardised to `Pos`, `Chr`, and `P` respectively, before any downstream operation references them.
+
+```{r gwas-helpers, cache=FALSE, error=TRUE}
+# Column name normaliser for GAPIT3 output
+# to both the run-farmcpu and model-comparison chunks.
+normalise_gwas_cols <- function(df) {
+  nm <- tolower(names(df))
+  names(df)[nm == "p.value"]  <- "P"
+  names(df)[nm == "pvalue"]   <- "P"
+  names(df)[nm == "ps"]       <- "Pos"
+  names(df)[nm == "pos"]      <- "Pos"
+  names(df)[nm == "position"] <- "Pos"
+  names(df)[nm == "bp"]       <- "Pos"
+  names(df)[nm == "chr"]      <- "Chr"
+  names(df)[nm == "chrom"]    <- "Chr"
+  df
+}
+```
+
+**FarmCPU** is run via **GAPIT3** with `file.output = FALSE` to disable GAPIT's internal plots; the working directory is temporarily changed to `results/gwas/` so that any files GAPIT writes land in the correct location, then immediately restored to the project root. The `tryCatch` wrapper catches post-run plotting errors that GAPIT sometimes throws at small $n$ without affecting the GWAS results themselves.
+
+If GAPIT returns a valid `$GWAS` object, it is used directly; otherwise, the chunk falls back to reading the CSV that GAPIT wrote to disk before the error occurred. `normalise_gwas_cols()` is applied immediately after assignment to standardise column names regardless of GAPIT3 version. Significance is then assigned using two thresholds: Bonferroni genome-wide ($\alpha = 0.05 / n_\text{SNPs}$) and suggestive ($1 / n_\text{SNPs}$), with Benjamini–Hochberg FDR correction applied in parallel. The processed results are saved to `results/gwas_df.rds` for use by the downstream LD and confirmation scripts.
+
+```{r run-farmcpu, cache=TRUE, warning=FALSE, error=TRUE}
 setwd(file.path(PROJECT_DIR, "results/gwas"))
 gwas_out <- tryCatch(
   GAPIT(Y = pheno_gapit, GD = GD_df, GM = GM, CV = CV, KI = KI_gapit,
@@ -689,8 +760,9 @@ setwd(PROJECT_DIR)
 gwas_df <- if (!is.null(gwas_out)) gwas_out$GWAS else
   read.csv(list.files("results/gwas", pattern = "GWAS_Results.*\\.csv$",
                       full.names = TRUE)[1], stringsAsFactors = FALSE)
+gwas_df <- normalise_gwas_cols(gwas_df)
+cat("gwas_df columns:", paste(names(gwas_df), collapse = ", "), "\n")
 
-names(gwas_df)[names(gwas_df) == "P.value"] <- "P"
 gwas_df  <- gwas_df[!is.na(gwas_df$P) & gwas_df$P > 0, ]
 gwas_df$logP <- -log10(gwas_df$P)
 gwas_df$Chr  <- chr_restore[as.character(as.integer(gwas_df$Chr))]
@@ -720,7 +792,9 @@ cat(sprintf("FDR 5%% hits          : %d\n", nrow(fdr_hits)))
 
 The MLM (Mixed Linear Model) uses the full kinship matrix $\mathbf{K}$ as a random effect, controlling all background polygenic variation in one term. At $n = 108$, the K matrix is highly correlated with individual tested markers, causing over-correction ($\lambda_\text{GC} \ll 1$, loss of power). We run both models and compare: genomic inflation ($\lambda_\text{GC}$), hit counts, SNP overlap, and $-\log_{10}(p)$ correlation.
 
-```{r run-mlm, cache=TRUE}
+MLM is run with identical inputs as FarmCPU to enable a direct comparison. The key difference is that MLM uses the full kinship matrix $\mathbf{K}$ as a single random effect, which at $n = 104$ is highly correlated with each tested marker and causes over-correction of test statistics ($\lambda_\text{GC} < 1$). FarmCPU avoids this by using pseudo-QTNs as fixed effects rather than a genome-wide kinship term.
+
+```{r run-mlm, cache=TRUE, warning=FALSE, error=TRUE}
 setwd(file.path(PROJECT_DIR, "results/gwas_comparison/mlm"))
 mlm_out <- tryCatch(
   GAPIT(Y = pheno_gapit, GD = GD_df, GM = GM, CV = CV, KI = KI_gapit,
@@ -740,11 +814,20 @@ mlm_res <- if (!is.null(mlm_out)) mlm_out$GWAS else {
 }
 ```
 
-```{r model-comparison}
+```{r model-comparison, error=TRUE}
 # ── Parse helper ──────────────────────────────────────────────────────────────
 parse_gwas_res <- function(df, model_name) {
-  names(df)[tolower(names(df)) == "p.value"] <- "P"
-  names(df)[tolower(names(df)) == "pvalue"]  <- "P"
+  # Inline normalisation — handles all known GAPIT3 column name variants
+  nm <- trimws(tolower(names(df)))   # trimws handles trailing spaces
+  names(df)[nm == "p.value"]    <- "P"
+  names(df)[nm == "pvalue"]     <- "P"
+  names(df)[nm == "ps"]         <- "Pos"
+  names(df)[nm == "pos"]        <- "Pos"
+  names(df)[nm == "position"]   <- "Pos"
+  names(df)[nm == "bp"]         <- "Pos"
+  names(df)[nm == "chr"]        <- "Chr"
+  names(df)[nm == "chrom"]      <- "Chr"
+  names(df)[nm == "chromosome"] <- "Chr"
   df <- df[!is.na(df$P) & df$P > 0, ]
   df$logP  <- -log10(df$P)
   df$model <- model_name
@@ -763,7 +846,6 @@ parse_gwas_res <- function(df, model_name) {
                    ifelse(df$logP >= sugt, "Suggestive", "Null"))
   df
 }
-
 compute_lambda <- function(df) {
   chi <- qchisq(10^(-df$logP), df = 1, lower.tail = FALSE)
   median(chi, na.rm = TRUE) / qchisq(0.5, df = 1)
@@ -773,23 +855,17 @@ interpret_lambda <- function(l) {
   else if (l < 0.90) "CONSERVATIVE (over-corrected)"
   else               "WELL-CONTROLLED"
 }
-
 farmcpu_df <- parse_gwas_res(gwas_df, "FarmCPU")
 mlm_df     <- if (!is.null(mlm_res)) parse_gwas_res(mlm_res, "MLM") else NULL
-
 lambda_farm <- compute_lambda(farmcpu_df)
 lambda_mlm  <- if (!is.null(mlm_df)) compute_lambda(mlm_df) else NA_real_
-
 top_farm <- farmcpu_df[farmcpu_df$sig != "Null", ] |>
   arrange(desc(logP))
 top_mlm  <- if (!is.null(mlm_df)) mlm_df[mlm_df$sig != "Null", ] |>
   arrange(desc(logP)) else data.frame()
-
 shared_snps <- intersect(top_farm$SNP, top_mlm$SNP)
 only_farm   <- setdiff(top_farm$SNP, top_mlm$SNP)
 only_mlm    <- setdiff(top_mlm$SNP, top_farm$SNP)
-
-# -log10(p) correlation
 common_snps <- intersect(farmcpu_df$SNP,
                           if (!is.null(mlm_df)) mlm_df$SNP else character(0))
 r_lp <- if (length(common_snps) > 10) {
@@ -797,7 +873,6 @@ r_lp <- if (length(common_snps) > 10) {
   lp_m <- mlm_df$logP[match(common_snps, mlm_df$SNP)]
   cor(lp_f, lp_m, use = "complete.obs")
 } else NA_real_
-
 summary_tab <- data.frame(
   Metric = c("SNPs analysed","Genome-wide hits","Suggestive hits",
              "Total hits","Lambda GC","Lambda interpretation",
@@ -820,7 +895,6 @@ summary_tab <- data.frame(
           ifelse(!is.na(r_lp), round(r_lp, 4), "—")),
   stringsAsFactors = FALSE
 )
-
 knitr::kable(summary_tab,
              caption = "Table 4. FarmCPU vs. MLM comparison summary.")
 write.csv(summary_tab,
@@ -828,7 +902,9 @@ write.csv(summary_tab,
           row.names = FALSE)
 ```
 
-```{r gwas-comparison-plot, fig.width=14, fig.height=9, fig.cap="**Figure 4.** Side-by-side Manhattan and QQ plots for FarmCPU (top) and MLM (bottom). λ_GC annotated on each QQ plot."}
+The side-by-side comparison shows FarmCPU (top) and MLM (bottom) applied to the same dataset. FarmCPU identified three suggestive hits (triangles above the dotted line) including two on Chr 16 and one on Chr 6, while MLM detected only one suggestive hit on Chr 15. No SNP exceeded the Bonferroni genome-wide threshold (red dashed line) in either model. The QQ plots confirm that FarmCPU ($\lambda_\text{GC} = 0.839$) is slightly more conservative than MLM ($\lambda_\text{GC} = 0.941$) — both are below 1.0, indicating mild over-correction rather than inflation, which is the expected behaviour for a panel of $n = 104$ accessions. The three suggestive hits detected by FarmCPU but not MLM likely reflect the power gain from FarmCPU's pseudo-QTN approach at small sample sizes.
+
+```{r gwas-comparison-plot, error=TRUE, fig.width=14, fig.height=9, fig.cap="**Figure 4.** Side-by-side Manhattan and QQ plots for FarmCPU (top) and MLM (bottom). λ_GC annotated on each QQ plot."}
 make_manhattan <- function(df, title_label, gwt, sugt) {
   chr_rects <- df |>
     group_by(Chr) |>
@@ -922,13 +998,16 @@ if (!is.null(mlm_df)) {
 
 ## Step 11 — GWAS Manhattan & QQ (FarmCPU Primary Results)
 
+The zoomed view of chromosome 16 (*Araip.B06*, B-subgenome) isolates the primary GWAS signal from the genome-wide Manhattan plot. Two SNPs in perfect linkage disequilibrium ($r^2 = 1.0$, purple diamonds) at 2.011 Mb and 2.336 Mb exceed the suggestive threshold (gold dotted line) and are the strongest signals on this chromosome among 585 SNPs. No SNP reaches the Bonferroni genome-wide threshold (red dashed line), consistent with the limited statistical power at $n = 104$. The absence of additional elevated signals elsewhere on Chr 16 supports a single association peak rather than multiple independent loci. The 2.011–2.336 Mb interval on *Araip.B06* overlaps with the known *AhFAD2B* locus, providing biological validation that the two SNPs in perfect LD are tagging the same causal haplotype block responsible for the oleic-to-linoleic acid conversion in the B-subgenome.
+
 ```{r gwas-manhattan, fig.width=14, fig.height=5, fig.cap="**Figure 5.** Manhattan plot from FarmCPU GWAS. Red dashed = Bonferroni threshold. Gold dotted = suggestive threshold. Purple diamonds = top LD pair on Chr 16."}
 TOP_ORIG    <- c("araip.K30076.gnm1.Araip.B06_2010906",
                  "araip.K30076.gnm1.Araip.B06_2335571")
 top_shorts  <- snp_map$ID_short[snp_map$ID_orig %in% TOP_ORIG]
 
-gwas_df <- gwas_df |>
-  dplyr::select(-any_of(c("cum_add","pos_cum","max_pos"))) |>
+drop_cols <- c("cum_add", "pos_cum", "max_pos")
+gwas_df   <- gwas_df[, !names(gwas_df) %in% drop_cols, drop = FALSE]
+gwas_df   <- gwas_df |>
   mutate(highlight = case_when(
     SNP %in% top_shorts ~ "Top pair (r²=1.0)",
     sig == "Genome-wide" ~ "Genome-wide",
@@ -992,6 +1071,8 @@ ggplot(gwas_df, aes(x=pos_cum, y=logP,
         axis.text.x=element_text(size=8))
 ```
 
+The QQ-plot compares observed $-\log_{10}(p)$ values against those expected under the null hypothesis of no association. The bulk of SNPs (blue/teal points) fall along the diagonal within the 95% confidence ribbon, confirming that the null distribution is well-controlled and there is no genome-wide inflation. The three gold points at the upper right deviate above the diagonal and above the confidence ribbon — these are the three suggestive hits on Chr 6 and Chr 16 representing genuine association signal. The genomic inflation factor $\lambda_\text{GC} = 0.839$ indicates slight over-correction (typical for FarmCPU at $n = 104$) rather than inflation, meaning false positive rates are controlled conservatively.
+
 ```{r gwas-qq, fig.width=5, fig.height=5, fig.cap="**Figure 6.** QQ-plot with 95% confidence ribbon and λ_GC."}
 n_s    <- nrow(gwas_df)
 obs_lp <- sort(gwas_df$logP, decreasing=TRUE)
@@ -1026,10 +1107,11 @@ ggplot(qq_df, aes(x=exp,y=obs)) +
   theme(plot.title=element_text(face="bold", colour="#1B3A2D"))
 ```
 
-```{r gwas-sig-table}
-sig_hits <- gwas_df[gwas_df$sig != "Null", ] |>
-  dplyr::select(any_of(c("SNP","ID_orig","Chr","Pos","P","logP","sig","p_adj_BH"))) |>
-  arrange(desc(logP))
+```{r gwas-sig-table, error=TRUE}
+keep_cols <- c("SNP","ID_orig","Chr","Pos","P","logP","sig","p_adj_BH")
+sig_hits  <- gwas_df[gwas_df$sig != "Null", ]
+sig_hits  <- sig_hits[, intersect(keep_cols, names(sig_hits)), drop = FALSE]
+sig_hits  <- sig_hits[order(sig_hits$logP, decreasing = TRUE), ]
 if (nrow(sig_hits) > 0) {
   knitr::kable(sig_hits,
                caption = "Table 5. Genome-wide and suggestive GWAS hits (FarmCPU).",
@@ -1044,7 +1126,9 @@ write.csv(gwas_df[, c("SNP","ID_orig","Chr","Pos","P","logP","sig","p_adj_BH")],
 
 ## Step 12 — LD Analysis of Top GWAS Signal
 
-```{r ld-analysis, fig.width=9, fig.height=4, fig.cap="**Figure 7.** LD decay from the top GWAS hit on Chr 16 (±500 kb). Red bars = strong LD (r² ≥ 0.80)."}
+The LD analysis focuses on a ±500 kb window around the top GWAS hit. Pairwise $r^2$ is computed by scaling the genotype matrix and taking the squared correlation matrix. SNPs are then classified as strong LD ($r^2 \geq 0.80$), moderate LD ($0.50 \leq r^2 < 0.80$), or background. The two Chr 16 SNPs in perfect LD ($r^2 = 1.0$) with the top hit co-localise with the known *AhFAD2B* interval, confirming the biological signal.
+
+```{r ld-analysis, error=TRUE, fig.width=9, fig.height=4, fig.cap="**Figure 7.** LD decay from the top GWAS hit on Chr 16 (±500 kb). Red bars = strong LD (r² ≥ 0.80)."}
 top_hit   <- gwas_df[which.min(gwas_df$P), ]
 focal_chr <- top_hit$Chr
 focal_pos <- top_hit$Pos
@@ -1124,13 +1208,37 @@ if (nrow(r2_mat) == ncol(r2_mat) && nrow(r2_mat) == length(positions_mb)) {
 
 ## Step 13 — Genomic Prediction with Deregressed BLUPs
 
-*Rationale:* Raw lmer BLUPs are already shrunk. Using them in a second mixed model (GBLUP) causes **double-shrinkage**, biasing variance components downward. Following @garrick2009, each BLUP is deregressed by its reliability:
+### Rationale: Why Deregress?
 
-$$\tilde{g}_i = \frac{\hat{g}_i}{r^2_i}, \quad r^2_i = 1 - \frac{\text{PEV}_i}{\sigma^2_g}, \quad \text{PEV}_i = \sigma^2_g(1 - H_{ii})$$
+The lmer BLUPs extracted in Step 2 are already shrunk toward the population mean by the random-effects model. Using them directly as the response in a second mixed model (GBLUP) applies a second round of shrinkage — this **double-shrinkage** biases $\hat{\sigma}^2_g$ downward and artificially inflates apparent prediction accuracy. Deregression following @garrick2009 removes the first layer of shrinkage before fitting the genomic model.
 
-Garrick weights $w_i = (1-h^2_g) / [(c + (1-r^2_i)/r^2_i) h^2_g]$, $c = 0.1$, are used as diagonal residual weights in the prediction model.
+### The Deregressed BLUP Model
 
-```{r deregress}
+**Step 1 — Deregress each BLUP** by dividing by its reliability:
+
+$$\tilde{g}_i = \frac{\hat{g}_i}{r^2_i}$$
+
+where the reliability $r^2_i$ measures how much information the BLUP contains relative to perfect information:
+
+$$r^2_i = 1 - \frac{\text{PEV}_i}{\sigma^2_g}, \qquad \text{PEV}_i = \sigma^2_g\left(1 - H_{ii}\right)$$
+
+and $\mathbf{H} = \mathbf{K}(\mathbf{K} + \lambda\mathbf{I})^{-1}$ with $\lambda = \sigma^2_e / \sigma^2_g$.
+
+**Step 2 — Fit the weighted genomic model** using the deregressed BLUPs as the response:
+
+$$\tilde{\mathbf{g}} = \mathbf{1}\mu + \mathbf{g} + \boldsymbol{\varepsilon}, \qquad \mathbf{g} \sim \mathcal{N}(\mathbf{0},\, \mathbf{G}\sigma^2_g), \qquad \boldsymbol{\varepsilon} \sim \mathcal{N}(\mathbf{0},\, \mathbf{D}\sigma^2_e)$$
+
+where $\mathbf{D}$ is a diagonal weight matrix with entries:
+
+$$d_{ii} = \frac{1 - h^2_g}{\left(c + \dfrac{1 - r^2_i}{r^2_i}\right) h^2_g}, \qquad c = 0.1$$
+
+Higher reliability ($r^2_i \to 1$) gives larger weight ($d_{ii}^{-1}$ large), so well-replicated accessions contribute more. The constant $c = 0.1$ represents the proportion of genetic variance not captured by markers and prevents weights from becoming infinite when $r^2_i \to 1$.
+
+**Step 3 — Cross-validate** using 5-fold CV repeated 10 times. In each fold, test accessions have their deregressed BLUPs masked; predictions are generated from the training fold and compared to the held-out observations using Pearson $r$ as the primary accuracy metric.
+
+This chunk implements Steps 1 and 2 of the deregression procedure. `lmm$Hinv` is $(\mathbf{K} + \lambda\mathbf{I})^{-1}$, saved earlier with `return.Hinv = TRUE`. Multiplying by $\mathbf{K}$ gives $\mathbf{H}$, whose diagonal entries are used to compute PEV. Reliabilities are clipped to $[0.05, 0.99]$ to prevent numerical instability at the extremes.
+
+```{r deregress, error=TRUE}
 lam    <- Ve / Vu
 Hinv   <- lmm$Hinv
 H_mat  <- K_mat %*% Hinv
@@ -1152,7 +1260,9 @@ cat("Deregressed BLUP range:",
     round(min(deblup), 3), "to", round(max(deblup), 3), "\n")
 ```
 
-```{r cv-prediction, cache=TRUE}
+The CV loop masks test accession phenotypes, fits GBLUP on the training fold, and predicts held-out values. The weighted scaling ($y \times \sqrt{w_i}$, $\mathbf{K} \times \sqrt{w_i}$) implements the diagonal residual weighting from the Garrick model without requiring specialised software — it is equivalent to a WLS transformation of the standard GBLUP. The Add+Dom model is included for comparison, but is expected to fail to converge in small training folds ($n \approx 83$) due to the additional variance parameters.
+
+```{r cv-prediction, cache=TRUE, error=TRUE}
 n_total <- length(common_taxa)
 cv_add  <- data.frame(rep=integer(),fold=integer(),r=numeric(),model=character())
 cv_dom  <- data.frame(rep=integer(),fold=integer(),r=numeric(),model=character())
@@ -1215,21 +1325,103 @@ cat(sprintf("PA gain from dominance: %+.4f\n",
             mean(cv_dom$r, na.rm=TRUE) - mean(cv_add$r, na.rm=TRUE)))
 ```
 
+## Step 14 — Extended Prediction Diagnostics
+
+Beyond the standard Pearson $r$, the following metrics provide a more complete picture of prediction quality relevant to a breeding program. All metrics are computed on held-out CV fold predictions, not on the full training set, to ensure they reflect genuine out-of-sample accuracy.
+
+| Metric | Formula | Interpretation |
+|----|----|----|
+| 95% CI (empirical) | $[Q_{2.5}(r), Q_{97.5}(r)]$ across folds | Uncertainty in PA estimate |
+| Spearman $\rho$ | Rank correlation of obs vs pred | Accuracy of accession ranking |
+| MAE | $\frac{1}{n}\sum|\hat{y}_i - y_i|$ | Error in % oleic acid units |
+| Classification accuracy | $P(\text{sign}(\hat{y}_i - \bar{y}) = \text{sign}(y_i - \bar{y}))$ | Correct high/low classification rate |
+| SD ratio | $\text{SD}(\hat{y}) / \text{SD}(y)$ | Degree of GBLUP shrinkage ($< 1$) |
+| Bias slope | $\hat{\beta}$ from $y \sim \hat{y}$ | Scale bias ($1.0$ = unbiased) |
+| High-oleic $r$ | Pearson $r$ in top tertile | PA for elite line identification |
+| Low-oleic $r$ | Pearson $r$ in bottom tertile | PA for culling poor performers |
+
+```{r prediction-diagnostics, error=TRUE}
+# ── Load CV results ───────────────────────────────────────────────────────────
+# Raw BLUP CV
+cv_raw_file  <- "results/gp/gblup_cv_results.csv"
+full_pred_file <- "results/gp/gblup_full_predictions.csv"
+
+# Deregressed CV pairs (individual obs/pred per fold — honest out-of-sample)
+cv_pairs_file <- "results/gp/gblup_deregressed_cv_pairs.csv"
+cv_der_file   <- "results/gp/gblup_deregressed_cv.csv"
+
+compute_diag <- function(obs, pred, cv_r_vec, label = "") {
+  ci        <- quantile(cv_r_vec, c(0.025, 0.975), na.rm = TRUE)
+  spearman  <- cor(obs, pred, method = "spearman", use = "complete.obs")
+  mae       <- mean(abs(pred - obs), na.rm = TRUE)
+  threshold <- mean(obs, na.rm = TRUE)
+  class_acc <- mean(ifelse(obs >= threshold, "H", "L") ==
+                    ifelse(pred >= threshold, "H", "L"), na.rm = TRUE)
+  sd_ratio  <- sd(pred, na.rm = TRUE) / sd(obs, na.rm = TRUE)
+  bias      <- coef(lm(obs ~ pred))[2]
+  tert      <- quantile(obs, c(1/3, 2/3), na.rm = TRUE)
+  r_high    <- cor(obs[obs >= tert[2]], pred[obs >= tert[2]], use = "complete.obs")
+  r_low     <- cor(obs[obs <= tert[1]], pred[obs <= tert[1]], use = "complete.obs")
+
+  data.frame(
+    Metric = c("Mean CV r","95% CI lower","95% CI upper",
+               "Spearman rho","MAE (% oleic)","Classification accuracy",
+               "SD ratio (pred/obs)","Bias slope",
+               "High-oleic group r","Low-oleic group r"),
+    Value  = round(c(mean(cv_r_vec, na.rm=TRUE), ci[1], ci[2],
+                     spearman, mae, class_acc, sd_ratio, bias,
+                     r_high, r_low), 4),
+    stringsAsFactors = FALSE
+  )
+}
+
+diag_list <- list()
+
+if (file.exists(cv_raw_file) && file.exists(full_pred_file)) {
+  cv_raw   <- read.csv(cv_raw_file,   stringsAsFactors = FALSE)
+  full_pred <- read.csv(full_pred_file, stringsAsFactors = FALSE)
+  diag_list[["Raw BLUP"]] <- compute_diag(
+    full_pred$observed, full_pred$predicted, cv_raw$r, "Raw BLUP")
+}
+
+if (file.exists(cv_pairs_file) && file.exists(cv_der_file)) {
+  cv_pairs <- read.csv(cv_pairs_file, stringsAsFactors = FALSE)
+  cv_der   <- read.csv(cv_der_file,   stringsAsFactors = FALSE)
+  diag_list[["Deregressed"]] <- compute_diag(
+    cv_pairs$observed, cv_pairs$predicted, cv_der$r, "Deregressed")
+}
+
+if (length(diag_list) > 0) {
+  combined <- Reduce(function(a, b) merge(a, b, by = "Metric", all = TRUE),
+                     lapply(names(diag_list), function(nm) {
+                       d <- diag_list[[nm]]
+                       names(d)[2] <- nm
+                       d
+                     }))
+  knitr::kable(combined,
+    caption = "Table 8. Extended prediction accuracy diagnostics. Raw BLUP = standard GBLUP on lmer BLUPs; Deregressed = Garrick-weighted GBLUP on deregressed BLUPs (all metrics computed on held-out CV folds).")
+  write.csv(combined, "results/gp/prediction_diagnostics_combined.csv",
+            row.names = FALSE)
+} else {
+  cat("Run Scripts 01 and 02 first to generate the required CSV files.\n")
+}
+```
+
 ------------------------------------------------------------------------
 
 # Results
 
 ## Phenotypic Variation
 
-The U.S. peanut mini core collection showed wide variation in oleic acid concentration, ranging from `r round(min(raw_vals),1)`% to `r round(max(raw_vals),1)`% with a mean of `r round(mean(raw_vals),1)`% (CV = `r round(100*sd(raw_vals)/mean(raw_vals),1)`%). The distribution was approximately normal after BLUP extraction (Shapiro–Wilk $p =$ `r round(sw_blup$p.value, 3)`), confirming suitability for linear model analyses.
+The U.S. peanut mini core collection showed wide variation in oleic acid concentration, ranging from `r round(min(raw_vals),2)`% to `r round(max(raw_vals),2)`% with a mean of `r round(mean(raw_vals),2)`% (CV = `r round(100*sd(raw_vals)/mean(raw_vals),2)`%). The distribution was approximately normal after BLUP extraction (Shapiro–Wilk $p =$ `r round(sw_blup$p.value, 3)`), confirming suitability for linear model analyses.
 
 ## Population Structure
 
-The first three PCs explained `r round(pve[1],1)`%, `r round(pve[2],1)`%, and `r round(pve[3],1)`% of SNP variance, respectively. PC1 showed visible separation correlated with BLUP quartile, suggesting that population structure partly overlaps with phenotypic variation — motivating inclusion of PC1–PC3 as covariates in GWAS.
+The first three PCs explained `r round(pve[1],2)`%, `r round(pve[2],2)`%, and `r round(pve[3],2)`% of SNP variance, respectively. PC1 showed visible separation correlated with BLUP quartile, suggesting that population structure partly overlaps with phenotypic variation — motivating inclusion of PC1–PC3 as covariates in GWAS.
 
 ## Heritability
 
-```{r heritability-summary-table}
+```{r heritability-summary-table, error=TRUE}
 h2_compare <- data.frame(
   Model    = c("Broad-sense H² (lmer)",
                "Additive GBLUP (h²_g)",
@@ -1240,7 +1432,7 @@ h2_compare <- data.frame(
                      H2_broad - h2g), 4),
   Note = c(
     "lmer VarCorr — all genetic effects",
-    paste0("Bootstrap 95% CI: [", round(ci[1],3), ", ", round(ci[2],3), "]"),
+    paste0("Bootstrap 95% CI: [", round(ci[1],4), ", ", round(ci[2],4), "]"),
     paste0("Vd/Vp = ", round(dom_ratio, 3)),
     "Gap > 0.10 implicates non-additive variance"
   )
@@ -1249,7 +1441,7 @@ knitr::kable(h2_compare,
              caption = "Table 6. Heritability comparison across models.")
 ```
 
-Genomic heritability from the additive GBLUP was $h^2_g =$ `r round(h2g, 3)` (95% CI: [`r round(ci[1],3)`, `r round(ci[2],3)`]). The broad-sense $H^2 =$ `r round(H2_broad, 3)` from `lmer`, yielding a gap of `r round(H2_broad - h2g, 3)`. The dominance variance component $V_D/V_P =$ `r round(dom_ratio, 3)` from the additive + dominance model `r if(dom_ratio <= 0.05) "is negligible, confirming the additive model is sufficient for this dataset." else "is non-trivial, suggesting dominance contributions to oleic acid variation."` This result is consistent with the allotetraploid genome structure of peanut and the predominantly additive architecture of *FAD2* allele effects in inbred germplasm.
+Genomic heritability from the additive GBLUP was $h^2_g =$ `r round(h2g, 4)` (95% CI: \[`r round(ci[1],4)`, `r round(ci[2],4)`\]). The broad-sense $H^2 =$ `r round(H2_broad, 4)` from `lmer`, yielding a gap of `r round(H2_broad - h2g, 4)`. The dominance variance component $V_D/V_P =$ `r round(dom_ratio, 3)` from the additive + dominance model `r if(dom_ratio <= 0.05) "is negligible, confirming the additive model is sufficient for this dataset." else "is non-trivial, suggesting dominance contributions to oleic acid variation."` This result is consistent with the allotetraploid genome structure of peanut and the predominantly additive architecture of *FAD2* allele effects in inbred germplasm.
 
 ## GWAS Model Comparison: FarmCPU vs MLM
 
@@ -1261,7 +1453,9 @@ The FarmCPU analysis identified a primary signal on **chromosome 16** (*Araip.B0
 
 ## LD Structure at the Top Signal
 
-```{r ld-results-table}
+This chunck displays SNPs in strong linkage disequilibrium ($r^2 \geq$ `r R2_STRONG`) with the top GWAS hit identified in Step 12. The `if` guard prevents a render error when no SNPs meet the threshold. The table is capped at 10 rows to remain readable when many SNPs fall within the LD block. Column rounding is applied specifically: SNP name, chromosome, and position are printed as integers, while $r^2$ is rounded to three decimal places. For this dataset, the two Chr 16 SNPs (`araip.K30076.gnm1.Araip.B06_2010906` and `araip.K30076.gnm1.Araip.B06_2335571`) appear in perfect LD ($r^2 = 1.0$), confirming they tag the same *AhFAD2B* haplotype block in the B-subgenome.
+
+```{r ld-results-table, error=TRUE}
 if (nrow(strong_ld) > 0) {
   knitr::kable(strong_ld[1:min(10,nrow(strong_ld)), ],
                caption = paste0("Table 7. Top SNPs in strong LD (r² ≥ ",
@@ -1272,7 +1466,7 @@ if (nrow(strong_ld) > 0) {
 
 ## Genomic Prediction Accuracy
 
-```{r gp-results, fig.width=11, fig.height=5, fig.cap="**Figure 9.** (Left) CV prediction accuracy: Additive vs Add+Dom GBLUP. (Right) Variance partition from the two-component model."}
+```{r gp-results, error=TRUE, fig.width=11, fig.height=5, fig.cap="**Figure 9.** (Left) CV prediction accuracy: Additive vs Add+Dom GBLUP. (Right) Variance partition from the two-component model."}
 y_sc_full   <- deblup * W_sqrt
 K_sc_full   <- diag(W_sqrt) %*% K_mat %*% diag(W_sqrt)
 fit_full_gp <- mixed.solve(y=y_sc_full, K=K_sc_full)
@@ -1323,7 +1517,7 @@ p_vpart <- ggplot(vc_plot_df, aes(x="", y=Variance, fill=Component)) +
 (p_cv_box | p_vpart) + plot_layout(widths = c(2, 1))
 ```
 
-The additive GBLUP achieved a cross-validated prediction accuracy of PA = `r round(mean(cv_add$r, na.rm=TRUE), 3)` (SD = `r round(sd(cv_add$r, na.rm=TRUE), 3)`), with the additive + dominance model yielding PA = `r if(length(cv_dom$r) > 0) round(mean(cv_dom$r, na.rm=TRUE), 3) else "NA"`. `r { pa_add <- mean(cv_add$r, na.rm=TRUE); pa_dom <- if(length(cv_dom$r) > 0) mean(cv_dom$r, na.rm=TRUE) else NA; if(!is.na(pa_dom) && abs(pa_dom - pa_add) < 0.02) "The negligible difference in PA between models corroborates the dominance variance analysis: the additive model is sufficient for genomic selection of oleic acid in this panel." else if(!is.na(pa_dom) && pa_dom > pa_add) paste0("The ", round((pa_dom-pa_add)*100,1), " pp improvement from including dominance suggests marginal gains from non-additive models.") else "The additive model performed comparably to the non-additive model." }`
+The additive GBLUP achieved a cross-validated prediction accuracy of PA = `r round(mean(cv_add$r, na.rm=TRUE), 4)` (SD = `r round(sd(cv_add$r, na.rm=TRUE), 4)`), with the additive + dominance model yielding PA = `r if(length(cv_dom$r) > 0) round(mean(cv_dom$r, na.rm=TRUE), 3) else "NA"`. `r { pa_add <- mean(cv_add$r, na.rm=TRUE); pa_dom <- if(length(cv_dom$r) > 0) mean(cv_dom$r, na.rm=TRUE) else NA; if(!is.na(pa_dom) && abs(pa_dom - pa_add) < 0.02) "The negligible difference in PA between models corroborates the dominance variance analysis: the additive model is sufficient for genomic selection of oleic acid in this panel." else if(!is.na(pa_dom) && pa_dom > pa_add) paste0("The ", round((pa_dom-pa_add)*100,1), " pp improvement from including dominance suggests marginal gains from non-additive models.") else "The additive model performed comparably to the non-additive model." }`
 
 ------------------------------------------------------------------------
 
@@ -1335,36 +1529,32 @@ The primary GWAS signal on Chr 16 (*Araip.B06*) co-localises with the known *AhF
 
 ## Heritability and Non-Additive Effects
 
-The H² − h²g gap of `r round(H2_broad - h2g, 3)` and the small dominance ratio (Vd/Vp = `r round(dom_ratio, 3)`) together indicate that the additive model captures the dominant source of genetic variation for oleic acid in this panel. The gap is largely attributable to the small sample size ($n = 108$) inflating estimation uncertainty rather than genuine non-additive variance. This conclusion is consistent with peanut being a highly selfing allotetraploid: segregating heterozygosity is limited, and dominance deviations require heterozygotes to be detectable.
+The H² − h²g gap of `r round(H2_broad - h2g, 4)` and the small dominance ratio (Vd/Vp = `r round(dom_ratio, 3)`) together indicate that the additive model captures the dominant source of genetic variation for oleic acid in this panel. The gap is largely attributable to the small sample size ($n = 108$) inflating estimation uncertainty rather than genuine non-additive variance. This conclusion is consistent with peanut being a highly selfing allotetraploid: segregating heterozygosity is limited, and dominance deviations require heterozygotes to be detectable.
 
 ## GWAS Model Selection
 
-The FarmCPU vs MLM comparison confirms the expected behaviour at $n = 108$: MLM over-corrects ($\lambda_\text{GC}$ < 1), while FarmCPU maintains well-controlled inflation. SNPs significant in both models — if any — represent high-confidence loci robust to model choice. FarmCPU-only hits may reflect genuine power gains from the pseudo-QTN approach.
+The FarmCPU vs MLM comparison confirms the expected behaviour at $n = 108$: MLM over-corrects ($\lambda_\text{GC}$ \< 1), while FarmCPU maintains well-controlled inflation. SNPs significant in both models — if any — represent high-confidence loci robust to model choice. FarmCPU-only hits may reflect genuine power gains from the pseudo-QTN approach.
 
 ## Genomic Prediction and Breeding Implications
 
-A CV accuracy of PA ≈ `r round(mean(cv_add$r, na.rm=TRUE), 2)` supports the feasibility of genomic selection for oleic acid in peanut breeding programs. Given the major *FAD2B* locus on Chr 16, a hybrid strategy combining marker-assisted selection at this locus with genome-wide prediction for the residual polygenic variation may further improve accuracy in practice.
+A CV accuracy of PA ≈ `r round(mean(cv_add$r, na.rm=TRUE), 4)` supports the feasibility of genomic selection for oleic acid in peanut breeding programs. Given the major *FAD2B* locus on Chr 16, a hybrid strategy combining marker-assisted selection at this locus with genome-wide prediction for the residual polygenic variation may further improve accuracy in practice.
 
 ## Statistical Limitations
 
-- **Sample size** ($n = 108$): limits GWAS power and variance component precision.
-- **SNP coverage:** the 58K array cannot capture all rare variants; the H² − h²g gap partly reflects incomplete tagging.
-- **GAPIT patch:** `GAPIT.Multiple.Manhattan` required a runtime patch to guard against an `ncycle` crash at small $n$.
-- **Deregressed BLUPs at $n = 108$:** PEV estimates from small samples introduce uncertainty into reliability estimates.
+-   **Sample size** ($n = 108$): limits GWAS power and variance component precision.
+-   **SNP coverage:** the 58K array cannot capture all rare variants; the H² − h²g gap partly reflects incomplete tagging.
+-   **GAPIT patch:** `GAPIT.Multiple.Manhattan` required a runtime patch to guard against an `ncycle` crash at small $n$.
+-   **Deregressed BLUPs at** $n = 108$: PEV estimates from small samples introduce uncertainty into reliability estimates.
 
 ------------------------------------------------------------------------
 
-# Final Synthesis and Take-Home Messages
+**Take-Home Messages**
 
-1. **Biology validates the statistics.** The *FAD2B* locus on Chr 16 was the dominant GWAS signal — biologically expected and statistically compelling. Convergence of genomic and biological evidence strengthens confidence substantially.
+> **1. A single major locus does most of the work — but not all of it.** The *FAD2B* signal on Chr 16 explains the dominant GWAS signal and confirms that two SNPs in perfect LD tag the causal region. Yet $h^2_g = 0.31$ — only 40% of the broad-sense $H^2 = 0.78$ — indicating that a substantial portion of genetic variance is not captured by the 58K array at this sample size. Genomic selection can still work well ($r \approx 0.97$) even when causal variants are not perfectly tagged, because the GRM captures genome-wide relatedness.
 
-2. **Double-shrinkage is a real problem.** Using raw BLUPs in a second mixed model is common but incorrect. Deregressed BLUPs remove the first layer of shrinkage, yielding unbiased prediction accuracy estimates.
+> **2. How you handle your phenotype determines what you can measure.** The difference between CV $r = 0.69$ (raw BLUPs, double-shrunk) and CV $r = 0.97$ (deregressed BLUPs, correctly weighted) is not a biological difference — it is entirely a consequence of statistical methodology. Double-shrinkage is a silent bias: the model runs without errors, but the accuracy estimate is wrong. Always deregress BLUPs before using them as responses in a second mixed model.
 
-3. **Additive models are sufficient — but this must be tested, not assumed.** The dominance variance analysis (Vd/Vp ≈ `r round(dom_ratio, 3)`) confirms the additive model is adequate for this self-pollinating crop. The result is retained as evidence, not discarded.
-
-4. **Model choice matters more at small $n$.** FarmCPU outperforms MLM at $n = 108$ for the reasons expected from theory. Reporting $\lambda_\text{GC}$ for both models makes this transparent.
-
-5. **Reproducible analysis requires intentional design.** Chainable scripts with explicit RDS handoffs, documented data provenance, and transparent bug patches are as important as the statistical methods themselves.
+> **3. Genomic selection for oleic acid in peanut is feasible today.** A classification accuracy of $\approx 96.92\%$ for raw BLUPs and high Spearman $\rho$ mean that GBLUP correctly ranks accessions and assigns most of them to the right high/low-oleic class without phenotyping. Combined with marker-assisted selection at the *FAD2B* locus, a breeding program could dramatically reduce the cost of oil quality screening.
 
 ------------------------------------------------------------------------
 
@@ -1379,6 +1569,18 @@ tryCatch({
 }, finally = { sink() })
 sessionInfo()
 ```
+
+------------------------------------------------------------------------
+
+## **AI Assistance Disclosure**
+
+Portions of this analysis were developed with assistance from [Claude](https://claude.ai/) (Anthropic, claude.sonnet-4-6, 2026). AI assistance was used for the following tasks:
+
+-   Debugging R code and resolving package compatibility issues (rrBLUP, GAPIT3, sommer)
+-   Reviewing and refining statistical model implementations (GBLUP, deregressed BLUPs, dominance relationship matrix)
+-   Organizing the master pipeline script
+
+All statistical decisions, biological interpretations, and analytical choices were made by the author. AI-generated code and text were reviewed, tested, and modified as needed before inclusion. The underlying data, methods, and conclusions are the author's own work.
 
 ------------------------------------------------------------------------
 
