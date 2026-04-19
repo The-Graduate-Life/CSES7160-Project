@@ -147,12 +147,16 @@ If the VCF file is missing, download it from the Legume Information System (LIS)
 
 ## Step 8 — Run the Full Pipeline
 
-In RStudio, with `master_script.R` open, click the **Source** button (top-right of the editor pane).
++ In RStudio, with `master_script.R` open, click the **Source** button (top-right of the editor pane).
 
-Alternatively, in the Console run:
++ Alternatively, in the Console run:
 
 ```r
 source("Oleic_acid/scripts/master_script.R")
+```
++ Or, in the RStudio terminal
+```r
+Oleic_acid/scripts>Rscript master_script.R # Use the right path where the master_script.R lives
 ```
 
 The master script will run all six analysis scripts in order. You will see progress messages printed in the Console.
