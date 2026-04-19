@@ -154,7 +154,7 @@ If the VCF file is missing, download it from the Legume Information System (LIS)
 ```r
 source("Oleic_acid/scripts/master_script.R")
 ```
-+ Or, in the RStudio terminal
++ Or, run the `master_script.R` in the RStudio terminal:
 ```r
 Oleic_acid/scripts>Rscript master_script.R # Use the right path where the master_script.R lives
 ```
