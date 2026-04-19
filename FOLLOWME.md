@@ -33,6 +33,24 @@ RStudio is a friendlier interface for R.
 2. Download the free **RStudio Desktop** version for your OS
 3. Install it with default settings
 
+Check if Quarto is Already Installed:
+
+RStudio v2022.07 and above comes with Quarto built-in. Check your version via:
+*Help → About RStudio*
+If you're on a recent version, Quarto is already there. Confirm in the RStudio Terminal:
+```bash
+quarto --version
+```
+**Install Quarto (if not already present)**
++ Install the Required R Packages
+In the RStudio Console, run:
+```r
+# Core packages
+install.packages("knitr")       # Rendering engine for R
+install.packages("rmarkdown")   # Needed for compatibility
+install.packages("quarto")      # Quarto R package (optional helper)
+```
+
 > From now on, open **RStudio** instead of R directly.
 
 
