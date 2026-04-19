@@ -11,7 +11,7 @@ This guide walks you through reproducing the entire analysis from scratch, even 
 - 1–2 hours (most of which is waiting for R to finish)
 
 
-
+> ***You might alraedy have `R` and `RStudio` installed. If so, start directly with step 3.***
 ## Step 1 — Install R
 
 R is the programming language used for all analyses.
@@ -33,10 +33,12 @@ RStudio is a friendlier interface for R.
 2. Download the free **RStudio Desktop** version for your OS
 3. Install it with default settings
 
-Check if Quarto is Already Installed:
+> From now on, open **RStudio** instead of R directly.
 
-RStudio v2022.07 and above comes with Quarto built-in. Check your version via:
-*Help → About RStudio*
+
+## Step 3 — Install Quarto (needed for the HTML report)
+
+Quarto renders the final interactive report. Check if Quarto is Already Installed. `RStudio v2022.07` and above comes with Quarto built-in. Check your version via: *`Help → About RStudio`*
 If you're on a recent version, Quarto is already there. Confirm in the RStudio Terminal:
 ```bash
 quarto --version
@@ -50,18 +52,6 @@ install.packages("knitr")       # Rendering engine for R
 install.packages("rmarkdown")   # Needed for compatibility
 install.packages("quarto")      # Quarto R package (optional helper)
 ```
-
-> From now on, open **RStudio** instead of R directly.
-
-
-
-## Step 3 — Install Quarto (optional — only needed for the HTML report)
-
-Quarto renders the final interactive report. Skip this step if you only want the plots and tables.
-
-1. Go to https://quarto.org/docs/get-started/
-2. Download the installer for your OS and run it
-
 
 
 ## Step 4 — Get the Project Files
