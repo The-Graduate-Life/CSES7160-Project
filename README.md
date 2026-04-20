@@ -172,7 +172,7 @@ All statistical decisions, biological interpretations, and analytical choices we
 
 - Garrick, D. J., Taylor, J. F., & Fernando, R. L. (2009). Deregressing estimated breeding values and weighting information for genomic regression analyses. *Genetics Selection Evolution, 41(1)*, 55. [https://doi.org/10.1186/1297-9686-41-55](https://doi.org/10.1186/1297-9686-41-55).
 
-- Liu, X., Huang, M., Fan, B., Buckler, E.S., & Z. Zhang. 2016. “Iterative Usage of Fixed and Random Effect Models for Powerful and Efficient Genome-Wide Association Studies.” *PLOS Genetics 12 (2)*: e1005767. [https://doi.org/10.1371/journal.pgen.1005767](https://doi.org/10.1371/journal.pgen.1005767).
+- Liu, X., Huang, M., Fan, B., Buckler, E.S., & Zhang, Z. (2016). “Iterative Usage of Fixed and Random Effect Models for Powerful and Efficient Genome-Wide Association Studies.” *PLOS Genetics 12 (2)*: e1005767. [https://doi.org/10.1371/journal.pgen.1005767](https://doi.org/10.1371/journal.pgen.1005767).
 
 - Otyama, P. I., Wilkey, A., Kulkarni, R., Assefa, T., Chu, Y., Clevenger, J., ... & Cannon, S. B. (2019). Evaluation of linkage disequilibrium, population structure, and genetic diversity in the US peanut mini core collection. *BMC genomics, 20(1)*, 481. [https://doi.org/10.1186/s12864-019-5824-9](https://doi.org/10.1186/s12864-019-5824-9).
 

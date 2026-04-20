@@ -11,7 +11,7 @@ This guide walks you through reproducing the entire analysis from scratch, even 
 - 1–2 hours (most of which is waiting for R to finish)
 
 
-
+> ***You might alraedy have `R` and `RStudio` installed. If so, start directly with step 3.***
 ## Step 1 — Install R
 
 R is the programming language used for all analyses.
@@ -36,14 +36,22 @@ RStudio is a friendlier interface for R.
 > From now on, open **RStudio** instead of R directly.
 
 
+## Step 3 — Install Quarto (needed for the HTML report)
 
-## Step 3 — Install Quarto (optional — only needed for the HTML report)
-
-Quarto renders the final interactive report. Skip this step if you only want the plots and tables.
-
-1. Go to https://quarto.org/docs/get-started/
-2. Download the installer for your OS and run it
-
+Quarto renders the final interactive report. Check if Quarto is Already Installed. `RStudio v2022.07` and above comes with Quarto built-in. Check your version via: *`Help → About RStudio`*
+If you're on a recent version, Quarto is already there. Confirm in the RStudio Terminal:
+```bash
+quarto --version
+```
+**Install Quarto (if not already present)**
++ Install the Required R Packages
+In the RStudio Console, run:
+```r
+# Core packages
+install.packages("knitr")       # Rendering engine for R
+install.packages("rmarkdown")   # Needed for compatibility
+install.packages("quarto")      # Quarto R package (optional helper)
+```
 
 
 ## Step 4 — Get the Project Files
@@ -139,12 +147,16 @@ If the VCF file is missing, download it from the Legume Information System (LIS)
 
 ## Step 8 — Run the Full Pipeline
 
-In RStudio, with `master_script.R` open, click the **Source** button (top-right of the editor pane).
++ In RStudio, with `master_script.R` open, click the **Source** button (top-right of the editor pane).
 
-Alternatively, in the Console run:
++ Alternatively, in the Console run:
 
 ```r
 source("Oleic_acid/scripts/master_script.R")
+```
++ Or, run the `master_script.R` in the RStudio terminal:
+```r
+Oleic_acid/scripts>Rscript master_script.R # Use the right path where the master_script.R lives
 ```
 
 The master script will run all six analysis scripts in order. You will see progress messages printed in the Console.
