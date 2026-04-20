@@ -1,4 +1,4 @@
-# FOLLOWME — Step-by-Step Reproduction Guide
+# A Step-by-Step Guide to Successfully Reproduce this Pipeline Analysis
 
 This guide walks you through reproducing the entire analysis from scratch, even if you have never used R or genomics tools before. Follow each step in order.
 
@@ -147,19 +147,19 @@ If the VCF file is missing, download it from the Legume Information System (LIS)
 
 ## Step 8 — Run the Full Pipeline
 
-+ In RStudio, with `master_script.R` open, click the **Source** button (top-right of the editor pane).
-
-+ Alternatively, in the Console run:
-
-```r
-source("Oleic_acid/scripts/master_script.R")
+How to run the pipeline:
 ```
-+ Or, run the `master_script.R` in the RStudio terminal:
-```r
-Oleic_acid/scripts>Rscript master_script.R # Use the right path where the master_script.R lives
+Option A:
+Source this file from RStudio `(File > Open > master_script.R`, then click Source).
+
+Option B:
+From the R console: `source("master_script.R")`
+
+Option C:
+From terminal (from the project root): `Rscript master_script.R`
 ```
 
-The master script will run all six analysis scripts in order. You will see progress messages printed in the Console.
+The master script will run all seven analysis scripts in order. You will see progress messages printed in the Console.
 
 **Expected total runtime: 45–90 minutes** depending on your computer.
 
