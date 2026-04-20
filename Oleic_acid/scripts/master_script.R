@@ -8,19 +8,20 @@
 #
 # ── Directory structure ───────────────────────────────────────────────────────
 #   <root>/                          ← project root (.here lives here)
-#     master_script.R                ← this file
 #     .here                          ← marks project root for here::here()
 #     data/                          ← raw input files (not tracked by git)
 #       values.csv
 #       arahy.Tifrunner.gnm1.mrk.Axiom_Arachis_58K.gff3
 #       aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020.main.vcf
 #     scripts/                       ← all R scripts and .qmd
+#       master_script.R                ← this file
 #       01_CSES7160_Fritzner_Analysis.R
 #       02_GP_Deregressed_BLUPs.R
 #       03_GP_NonAdditive_Model.R
 #       04_CSES7160_GWAS_Comparison.R
 #       05_GWAS_Confirmation.R
 #       06_LD_Analysis.R
+#       07_prediction_diagnostics.R
 #       CSES7160_Fritzner.qmd
 #     results/                       ← all outputs (auto-created by scripts)
 #
