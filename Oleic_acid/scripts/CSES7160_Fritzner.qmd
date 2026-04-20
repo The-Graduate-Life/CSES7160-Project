@@ -99,7 +99,7 @@ High-oleic varieties confer a commercial advantage through improved product stab
 **All input data files are publicly available.** They are also included in this repository to smoothen the reproducibility. In case the might accidentally be deleted, download them and place them in the `data/` subdirectory before rendering.
 
 | File | Source | URL |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | `values.csv` | PeanutBase | <https://arachispheno.peanutbase.org/phenotypes/> |
 | `arahy.Tifrunner.gnm1.mrk.Axiom_Arachis_58K.gff3` | LIS DataStore | <https://data.legumeinfo.org/Arachis/hypogaea/markers/Tifrunner.gnm1.mrk.Axiom_Arachis_58K/> |
 | `aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020.main.vcf` | LIS DataStore | <https://data.legumeinfo.org/Arachis/hypogaea/diversity/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020/> |
@@ -1330,7 +1330,7 @@ cat(sprintf("PA gain from dominance: %+.4f\n",
 Beyond the standard Pearson $r$, the following metrics provide a more complete picture of prediction quality relevant to a breeding program. All metrics are computed on held-out CV fold predictions, not on the full training set, to ensure they reflect genuine out-of-sample accuracy.
 
 | Metric | Formula | Interpretation |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | 95% CI (empirical) | $[Q_{2.5}(r), Q_{97.5}(r)]$ across folds | Uncertainty in PA estimate |
 | Spearman $\rho$ | Rank correlation of obs vs pred | Accuracy of accession ranking |
 | MAE | $\frac{1}{n}\sum|\hat{y}_i - y_i|$ | Error in % oleic acid units |
@@ -1553,8 +1553,6 @@ A CV accuracy of PA ≈ `r round(mean(cv_add$r, na.rm=TRUE), 4)` supports the fe
 > **1. A single major locus does most of the work — but not all of it.** The *FAD2B* signal on Chr 16 explains the dominant GWAS signal and confirms that two SNPs in perfect LD tag the causal region. Yet $h^2_g = 0.31$ — only 40% of the broad-sense $H^2 = 0.78$ — indicating that a substantial portion of genetic variance is not captured by the 58K array at this sample size. Genomic selection can still work well ($r \approx 0.97$) even when causal variants are not perfectly tagged, because the GRM captures genome-wide relatedness.
 
 > **2. How you handle your phenotype determines what you can measure.** The difference between CV $r = 0.69$ (raw BLUPs, double-shrunk) and CV $r = 0.97$ (deregressed BLUPs, correctly weighted) is not a biological difference — it is entirely a consequence of statistical methodology. Double-shrinkage is a silent bias: the model runs without errors, but the accuracy estimate is wrong. Always deregress BLUPs before using them as responses in a second mixed model.
-
-> **3. Genomic selection for oleic acid in peanut is feasible today.** A classification accuracy of $\approx 96.92\%$ for raw BLUPs and high Spearman $\rho$ mean that GBLUP correctly ranks accessions and assigns most of them to the right high/low-oleic class without phenotyping. Combined with marker-assisted selection at the *FAD2B* locus, a breeding program could dramatically reduce the cost of oil quality screening.
 
 ------------------------------------------------------------------------
 
