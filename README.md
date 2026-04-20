@@ -15,6 +15,8 @@ The analysis combines genome-wide association studies (GWAS), genomic prediction
 
 > **What genomic regions control variation in oleic acid, and how accurately can marker-based models predict oil quality across the U.S. peanut mini core collection?**
 
+> > *A beginner-friendly step-by-step tutorial is provided as [FOLLOWME.md](FOLLOWME.md) to ensure the reproducibility of this pipeline-based analysis with minimal effort.*
+
 
 ## Key Findings
 
