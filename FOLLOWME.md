@@ -337,7 +337,7 @@ Re-download the VCF from LIS DataStore (see README.md for the Otyama & Kulkarni 
 
 > Pierre, F. (2026). *Genomic dissection and prediction of oleic acid concentration in peanut using high-density SNP markers*. GitHub. https://github.com/The-Graduate-Life/CSES7160-Project
 
-**Data sources you used (for reference):**
+**Data sources consulted (for reference):**
 > Pandey, M. K., Agarwal, G., Kale, S. M., Clevenger, J., Nayak, S. N., Sriswathi, M., & Varshney, R. K. (2017). Development and evaluation of a high density genotyping 'Axiom_Arachis' array with 58K SNPs for accelerating genetics and breeding in groundnut. *Scientific Reports*, *7*, 40577.[https://doi.org/10.1038/sep40577](https://doi.org/10.1038/srep40577).
 
 > Otyama, P. I., & Kulkarni, R. (2020). *Arachis hypogaea diversity: Otyama & Kulkarni 2020* [Data set]. Legume Information System DataStore.[https://data.legumeinfo.org/Arachis/hypogaea/diversity/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020/](https://data.legumeinfo.org/Arachis/hypogaea/diversity/aradu1_araip1.gnm1.div.Otyama_Kulkarni_2020/).
